@@ -23,8 +23,6 @@ public class ImageFilter {
         MainFrame frame = new MainFrame(1920,1080);
         frame.setVisible(true);
         frame.addButton("Much Filter");
-        frame.addButton("Much 2. Filter");
-        frame.addButton("Much 3. Filter");
     }
     
 }
