@@ -20,7 +20,7 @@ public class ImageFilter {
     }
     
     private static void drawWindow() {
-        MainFrame frame = new MainFrame(800,400);
+        MainFrame frame = new MainFrame(1920,1080);
         frame.setVisible(true);
         frame.addButton("Much Filter");
         frame.addButton("Much 2. Filter");
