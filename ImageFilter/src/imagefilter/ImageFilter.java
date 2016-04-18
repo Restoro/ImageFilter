@@ -24,6 +24,7 @@ public class ImageFilter {
         frame.setVisible(true);
         frame.addButton("Much Filter");
         frame.addButton("Much 2. Filter");
+        frame.addButton("Much 3. Filter");
     }
     
 }
