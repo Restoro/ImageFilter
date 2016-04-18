@@ -5,6 +5,8 @@
  */
 package imagefilter;
 
+import imagefilter.view.MainFrame;
+
 /**
  *
  * @author Fritsch
