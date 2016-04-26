@@ -6,6 +6,7 @@
 package imagefilter;
 
 import imagefilter.view.MainFrame;
+import javax.swing.JFrame;
 
 /**
  *
@@ -22,8 +23,16 @@ public class ImageFilter {
     }
     
     private static void drawWindow() {
-        MainFrame frame = new MainFrame(1920,1080);
+        MainFrame frame = new MainFrame(400,400);
         frame.setVisible(true);
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        frame.addButton("Branch it");
+        frame.addButton("Branch it");
+        frame.addButton("Branch it");
+        frame.addButton("Branch it");
+        frame.addButton("Branch it");
+        frame.addButton("Branch it");
+        frame.addButton("Branch it");
         frame.addButton("Branch it");
     }
     

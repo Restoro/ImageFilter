@@ -14,13 +14,18 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS;
+import static javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
@@ -38,6 +43,9 @@ public class MainFrame extends JFrame{
     ImagePanel imagePanel;
     JMenuItem openFile;
     MenuHandler handler;
+    DefaultListModel filterListModel;
+    JList filterList;
+    JScrollPane scrollButtonPanel;
 
     public MainFrame() {
         createWindow();
@@ -72,7 +80,17 @@ public class MainFrame extends JFrame{
         this.add(imagePanel, BorderLayout.CENTER);
         
         buttonPanel = new JPanel(new FlowLayout());
-        this.add(buttonPanel,BorderLayout.SOUTH);
+        scrollButtonPanel = new JScrollPane(buttonPanel,VERTICAL_SCROLLBAR_NEVER,HORIZONTAL_SCROLLBAR_ALWAYS);
+        this.add(scrollButtonPanel,BorderLayout.SOUTH);
+        
+        filterListModel = new DefaultListModel();
+        filterListModel.addElement("Test1");
+        filterListModel.addElement("Test2");
+        filterList = new JList(filterListModel);
+        
+        filterList.setPrototypeCellValue("Dies ist ein String");
+        this.add(filterList, BorderLayout.WEST);
+        
         mainFrame = this;
     }
     
@@ -84,6 +102,7 @@ public class MainFrame extends JFrame{
         JButton newButton = new JButton(buttonText);
         filterButtons.add(newButton);
         buttonPanel.add(newButton);
+        scrollButtonPanel.invalidate();
     }
     
     
