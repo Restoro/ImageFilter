@@ -37,8 +37,8 @@ public class ImagePanel extends JPanel{
         super.paintComponent(g);
         if(toDrawImage != null)
         {
-            Image image = toDrawImage.getScaledInstance(this.getWidth(), this.getHeight(), Image.SCALE_SMOOTH);
-            g.drawImage(image, 0, 0 , null);
+            //Image image = toDrawImage.getScaledInstance(this.getWidth(), this.getHeight(), Image.SCALE_DEFAULT);
+            g.drawImage(toDrawImage, 0, 0 , null);
         }
     }
 }

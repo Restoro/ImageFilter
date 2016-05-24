@@ -5,6 +5,8 @@
  */
 package imagefilter;
 
+import imagefilter.listener.Controller;
+import imagefilter.model.Model;
 import imagefilter.view.MainFrame;
 import javax.swing.JFrame;
 
@@ -23,17 +25,12 @@ public class ImageFilter {
     }
     
     private static void drawWindow() {
+        Model model = new Model();
         MainFrame frame = new MainFrame(400,400);
         frame.setVisible(true);
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-        frame.addButton("Branch it");
-        frame.addButton("Branch it");
-        frame.addButton("Branch it");
-        frame.addButton("Branch it");
-        frame.addButton("Branch it");
-        frame.addButton("Branch it");
-        frame.addButton("Branch it");
-        frame.addButton("Branch it");
+        Controller ctrl = new Controller(model, frame);
+        ctrl.generateButtons();
     }
     
 }

@@ -35,17 +35,17 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 
 public class MainFrame extends JFrame{
-    ArrayList<JButton> filterButtons;
-    JMenuBar menuBar;
-    JMenu menu;
-    JFrame mainFrame;
-    JPanel buttonPanel;
-    ImagePanel imagePanel;
-    JMenuItem openFile;
-    MenuHandler handler;
-    DefaultListModel filterListModel;
-    JList filterList;
-    JScrollPane scrollButtonPanel;
+    private ArrayList<JButton> filterButtons;
+    private JMenuBar menuBar;
+    private JMenu menu;
+    private JFrame mainFrame;
+    private JPanel buttonPanel;
+    private ImagePanel imagePanel;
+    private JMenuItem openFile;
+    private MenuHandler handler;
+    private DefaultListModel filterListModel;
+    private JList filterList;
+    private JScrollPane scrollButtonPanel;
 
     public MainFrame() {
         createWindow();
@@ -69,7 +69,6 @@ public class MainFrame extends JFrame{
         
         menu = new JMenu("File");
         openFile = new JMenuItem("Open File");
-        handler.addListenerToMenuItem(openFile);
         menu.add(openFile);
         
         menuBar.add(menu);
@@ -94,17 +93,29 @@ public class MainFrame extends JFrame{
         mainFrame = this;
     }
     
-    public void addButton(String buttonText)
+    public void addButton(JButton newButton)
     {
         if(filterButtons == null)
             filterButtons = new ArrayList<>();
         
-        JButton newButton = new JButton(buttonText);
         filterButtons.add(newButton);
         buttonPanel.add(newButton);
         scrollButtonPanel.invalidate();
     }
     
+    public void addMenuOpenFileListener(ActionListener listener)
+    {
+        openFile.addActionListener(listener);
+    }
+    
+    public void setImageOfImagePanel(BufferedImage image)
+    {
+        imagePanel.setImage(image);
+    }
+    
+//    public void addFilterBtnListener(ActionListener listener) {
+//        btnSearch.addActionListener(listener);
+//    }
     
     public class MenuHandler implements ActionListener{
 
@@ -144,6 +155,7 @@ public class MainFrame extends JFrame{
                 }
             }
         }
+        
         
     }
 }
