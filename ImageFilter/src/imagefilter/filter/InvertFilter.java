@@ -14,8 +14,6 @@ import java.awt.image.BufferedImage;
  * @author Verena
  */
 public class InvertFilter implements FilterInterface{
-    
-               
 
     @Override
     public BufferedImage processImage(BufferedImage image) {
@@ -29,11 +27,8 @@ public class InvertFilter implements FilterInterface{
                 int r = 255 - rgb >>16 & 0xFF;
                 int g = 255 - rgb >> 8 & 0xFF;
                 int b = 255 - rgb & 0xFF;
-                
-                proceedImage.setRGB(x, y, r << 16 | g << 8 | b);
-                
+                proceedImage.setRGB(x, y, r << 16 | g << 8 | b); 
             }
-            
         }
         return proceedImage;
              
