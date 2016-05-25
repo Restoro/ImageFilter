@@ -38,9 +38,9 @@ public class MirrorFilter implements FilterInterface {
                 proceedImage.setRGB((colX / rate)+offset, rowY / rate, ((r) << 16 | (g) << 8 | (b)));
                 
                 //Set Subsampled Mirror Pixel
-                r *= 0.35;
-                g *= 0.35;
-                b *= 0.35;
+                r *= Settings.MIRROR_DARKNESS;
+                g *= Settings.MIRROR_DARKNESS;
+                b *= Settings.MIRROR_DARKNESS;
                 proceedImage.setRGB((colX / rate)+offset, proceedImage.getHeight()-1-(rowY/rate), ((r) << 16 | (g) << 8 | (b)));
             }
         }
