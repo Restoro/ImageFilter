@@ -15,35 +15,35 @@ import javax.swing.ImageIcon;
  *
  * @author Fritsch
  */
-public class GrayscaleFilter implements FilterInterface {
-
-    public GrayscaleFilter() {
-    }
+public class MirrorFilter implements FilterInterface {
 
     @Override
     public BufferedImage processImage(BufferedImage image) {
-
+        final int rate = 2;
+        final int offset = (int) (image.getWidth() / (rate * 2));
         BufferedImage proceedImage = new BufferedImage(image.getWidth(), image.getHeight(), Settings.IMAGE_STANDARD_TYPE);
         image = Tools.convertToStandardType(image);
 
         if (image.getRaster().getDataBuffer() instanceof DataBufferByte) {
             byte[] pixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
 
-            for (int pixel = 0, row = 0, col = 0; pixel < pixels.length; pixel += 3) {
-                int b = pixels[pixel] & 0xFF;
-                int g = pixels[pixel + 1] & 0xFF;
-                int r = pixels[pixel + 2] & 0xFF;
+            for (int rowY = 0; rowY < proceedImage.getHeight(); rowY += rate) {
+            for (int colX = 0; colX  < proceedImage.getWidth(); colX += rate) {
+                int index = (colX + (rowY * proceedImage.getWidth()))*3;
+                int b = pixels[index] & 0xFF;
+                int g = pixels[index+1] & 0xFF;
+                int r = pixels[index+2] & 0xFF;
+
+                //Set Subsampled Pixel
+                proceedImage.setRGB((colX / rate)+offset, rowY / rate, ((r) << 16 | (g) << 8 | (b)));
                 
-                //Formula: https://en.wikipedia.org/wiki/Grayscale
-                int grayValue = (int) (r * 0.2126 + g * 0.7152 + b * 0.0722);
-                proceedImage.setRGB(col, row, (grayValue ) << 16 | (grayValue ) << 8 | (grayValue ));
-                
-                col++;
-                if (col == image.getWidth()) {
-                    col = 0;
-                    row++;
-                }
+                //Set Subsampled Mirror Pixel
+                r *= Settings.MIRROR_DARKNESS;
+                g *= Settings.MIRROR_DARKNESS;
+                b *= Settings.MIRROR_DARKNESS;
+                proceedImage.setRGB((colX / rate)+offset, proceedImage.getHeight()-1-(rowY/rate), ((r) << 16 | (g) << 8 | (b)));
             }
+        }
             return proceedImage;
         } else {
             return image;
@@ -51,14 +51,13 @@ public class GrayscaleFilter implements FilterInterface {
     }
 
     @Override
-    public ImageIcon getPreview()
-    {
+    public ImageIcon getPreview() {
         return new ImageIcon(Tools.getResource("scrollright.png"));
     }
 
     @Override
-    public String toString()
-    {
-        return "Grayscale";
+    public String toString() {
+        return "Mirror";
     }
+
 }
