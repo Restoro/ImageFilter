@@ -28,7 +28,7 @@ public class Model
 
     private final Set<FilterInterface> allFilters;
     private final List<FilterInterface> applyingFilters;
-    
+
     private final List<DisplayImageChangedListener> displayImageChangedListeners;
     private final List<FiltersChangedListener> filtersChangedListeners;
 
@@ -67,7 +67,7 @@ public class Model
             fireFiltersChanged();
         }
     }
-    
+
     public void removeFilter(FilterInterface filter)
     {
         if(this.allFilters.remove(filter))
@@ -102,18 +102,22 @@ public class Model
             }
         }
     }
-    
+
     public void setDisplayImage(BufferedImage image)
     {
         this.displayImage = image;
         fireDisplayImageChanged();
     }
-    
+
     public void setDisplayImage(FilterInterface filter)
     {
+        if(referenceImage == null)
+        {
+            return;
+        }
         setDisplayImage(filter.processImage(currentImage));
     }
-    
+
     public Collection<FilterInterface> addDisplayImageChangedListener(DisplayImageChangedListener listener)
     {
         displayImageChangedListeners.add(listener);
@@ -124,7 +128,7 @@ public class Model
     {
         displayImageChangedListeners.remove(listener);
     }
-    
+
     private void fireDisplayImageChanged()
     {
         Iterator<DisplayImageChangedListener> it = displayImageChangedListeners.iterator();
@@ -140,20 +144,20 @@ public class Model
             }
         }
     }
-    
+
     private void deleteAllApplyingFilters()
     {
-        
+
     }
-    
+
     public void addApplyingFilter(FilterInterface filter)
     {
         applyingFilters.add(filter);
         fireApplyingFiltersChanged();
     }
-    
+
     private void fireApplyingFiltersChanged()
     {
-        
+
     }
 }
