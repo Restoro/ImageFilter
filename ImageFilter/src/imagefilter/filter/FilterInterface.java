@@ -15,4 +15,6 @@ import javax.swing.ImageIcon;
 public interface FilterInterface {
     public BufferedImage processImage(BufferedImage image);
     public ImageIcon getPreview();    
+    @Override
+    public String toString();
 }

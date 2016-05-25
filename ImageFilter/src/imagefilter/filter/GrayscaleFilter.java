@@ -33,6 +33,8 @@ public class GrayscaleFilter implements FilterInterface {
                 int b = pixels[pixel] & 0xFF;
                 int g = pixels[pixel + 1] & 0xFF;
                 int r = pixels[pixel + 2] & 0xFF;
+                
+                //Formula: https://en.wikipedia.org/wiki/Grayscale
                 int grayValue = (int) (r * 0.2126 + g * 0.7152 + b * 0.0722);
                 proceedImage.setRGB(col, row, (grayValue ) << 16 | (grayValue ) << 8 | (grayValue ));
                 

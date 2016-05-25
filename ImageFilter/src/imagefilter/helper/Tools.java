@@ -34,6 +34,8 @@ public class Tools {
         return image;
     }
 
+    //returns all Classes in specific Package Name
+    //used to add filters dynamically
     public static Class[] getClasses(String packageName)
             throws ClassNotFoundException, IOException {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -52,6 +54,8 @@ public class Tools {
         return classes.toArray(new Class[classes.size()]);
     }
 
+    //returns all classes with package Name in specific directory
+    //checks recursive through directory
     private static List<Class> findClasses(File directory, String packageName) throws ClassNotFoundException {
         List<Class> classes = new ArrayList<>();
         if (!directory.exists()) {
