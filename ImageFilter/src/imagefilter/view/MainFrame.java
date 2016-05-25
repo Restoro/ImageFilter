@@ -80,7 +80,10 @@ public class MainFrame extends JFrame{
         filterListModel = new DefaultListModel();
         filterListModel.addElement("Test1");
         filterListModel.addElement("Test2");
+        filterListModel.addElement("Test3");
         filterList = new JList(filterListModel);
+        FilterListRenderer renderer = new FilterListRenderer(1);
+        filterList.setCellRenderer(renderer);
         
         filterList.setPrototypeCellValue("Dies ist ein String");
         this.add(filterList, BorderLayout.WEST);
