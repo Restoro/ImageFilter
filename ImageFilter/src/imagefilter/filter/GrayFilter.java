@@ -8,6 +8,7 @@ package imagefilter.filter;
 import imagefilter.helper.Settings;
 import imagefilter.helper.Tools;
 import java.awt.image.BufferedImage;
+import javax.swing.ImageIcon;
 
 /**
  *
@@ -37,7 +38,18 @@ public class GrayFilter implements FilterInterface{
             }
         }
         return proceedImage;
-             
+    }
+
+    @Override
+    public ImageIcon getPreview()
+    {
+        return new ImageIcon(Tools.getResource("scrollright.png"));
+    }
+
+    @Override
+    public String toString()
+    {
+        return "Gray";
     }
     
 }

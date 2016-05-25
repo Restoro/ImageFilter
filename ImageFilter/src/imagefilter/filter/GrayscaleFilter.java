@@ -7,9 +7,9 @@ package imagefilter.filter;
 
 import imagefilter.helper.Settings;
 import imagefilter.helper.Tools;
-import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
+import javax.swing.ImageIcon;
 
 /**
  *
@@ -48,4 +48,15 @@ public class GrayscaleFilter implements FilterInterface {
         }
     }
 
+    @Override
+    public ImageIcon getPreview()
+    {
+        return new ImageIcon(Tools.getResource("scrollright.png"));
+    }
+
+    @Override
+    public String toString()
+    {
+        return "Grayscale";
+    }
 }

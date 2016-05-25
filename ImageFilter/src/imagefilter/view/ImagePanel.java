@@ -5,40 +5,47 @@
  */
 package imagefilter.view;
 
+import imagefilter.model.Model;
 import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 
 /**
  *
  * @author Fritsch
  */
-public class ImagePanel extends JPanel{
-    private BufferedImage toDrawImage;
+public class ImagePanel extends JPanel
+{
+    private Image image;
+    private final Model model;
 
-    public ImagePanel() {
-        this.toDrawImage = null;
-    }
-    
-    public ImagePanel(BufferedImage toDrawImage) {
-        this.toDrawImage = toDrawImage;
-    }
-    
-    public void setImage(BufferedImage newImage)
+    public ImagePanel(Model model, Image image)
     {
-        this.toDrawImage = newImage;
-        repaint();
+        this.image = image;
+        this.model = model;
+        model.addDisplayImageChangedListener(img
+                -> 
+                {
+                    setImage(img);
+        });
     }
-    
+
+    public ImagePanel(Model model)
+    {
+        this(model, null);
+    }
+
     @Override
     protected void paintComponent(Graphics g)
     {
         super.paintComponent(g);
-        if(toDrawImage != null)
-        {
-            //Image image = toDrawImage.getScaledInstance(this.getWidth(), this.getHeight(), Image.SCALE_DEFAULT);
-            g.drawImage(toDrawImage, 0, 0 , null);
-        }
+        g.drawImage(image, 0, 0, null);
+    }
+
+    public void setImage(Image image)
+    {
+        System.out.println("Image changed");
+        this.image = image;
+        repaint();
     }
 }

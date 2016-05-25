@@ -5,9 +5,13 @@
  */
 package imagefilter;
 
-import imagefilter.listener.Controller;
+import imagefilter.filter.FilterInterface;
+import imagefilter.helper.Tools;
 import imagefilter.model.Model;
 import imagefilter.view.MainFrame;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFrame;
 
 /**
@@ -21,16 +25,28 @@ public class ImageFilter {
      */
     public static void main(String[] args) {
         // TODO code application logic here
-        drawWindow();
+        Model model = new Model();
+        setFilters(model);
+        drawWindow(model);
     }
     
-    private static void drawWindow() {
-        Model model = new Model();
-        MainFrame frame = new MainFrame(400,400);
+    private static void drawWindow(Model model) {
+        MainFrame frame = new MainFrame(400,400, model);
         frame.setVisible(true);
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-        Controller ctrl = new Controller(model, frame);
-        ctrl.generateButtons();
     }
     
+    private static void setFilters(Model model)
+    {
+        try {
+            Class[] filters = Tools.getClasses("imagefilter.filter");
+            for (Class filter : filters) {
+                if (FilterInterface.class.isAssignableFrom(filter) && !FilterInterface.class.equals(filter)) {
+                    model.addFilter((FilterInterface) filter.newInstance());
+                }
+            }
+        } catch (ClassNotFoundException | IOException | InstantiationException | IllegalAccessException ex) {
+            Logger.getLogger(ImageFilter.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 }

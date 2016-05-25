@@ -5,8 +5,8 @@
  */
 package imagefilter.view;
 
+import imagefilter.model.Model;
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -22,10 +22,6 @@ import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS;
-import static javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
@@ -39,21 +35,21 @@ public class MainFrame extends JFrame{
     private JMenuBar menuBar;
     private JMenu menu;
     private JFrame mainFrame;
-    private JPanel buttonPanel;
     private ImagePanel imagePanel;
     private JMenuItem openFile;
     private MenuHandler handler;
     private DefaultListModel filterListModel;
     private JList filterList;
-    private JScrollPane scrollButtonPanel;
+    private Model model;
 
     public MainFrame() {
         createWindow();
     }
     
-    public MainFrame(int width, int heigth)
+    public MainFrame(int width, int heigth, Model model)
     {
         this.setSize(width, heigth);
+        this.model = model;
         createWindow();
     }
     
@@ -69,18 +65,17 @@ public class MainFrame extends JFrame{
         
         menu = new JMenu("File");
         openFile = new JMenuItem("Open File");
+        openFile.addActionListener(handler);
         menu.add(openFile);
         
         menuBar.add(menu);
         
         this.setJMenuBar(menuBar);
         
-        imagePanel = new ImagePanel();
+        imagePanel = new ImagePanel(model);
         this.add(imagePanel, BorderLayout.CENTER);
         
-        buttonPanel = new JPanel(new FlowLayout());
-        scrollButtonPanel = new JScrollPane(buttonPanel,VERTICAL_SCROLLBAR_NEVER,HORIZONTAL_SCROLLBAR_ALWAYS);
-        this.add(scrollButtonPanel,BorderLayout.SOUTH);
+        this.add(new SelectFilterPanel(model),BorderLayout.SOUTH);
         
         filterListModel = new DefaultListModel();
         filterListModel.addElement("Test1");
@@ -91,16 +86,6 @@ public class MainFrame extends JFrame{
         this.add(filterList, BorderLayout.WEST);
         
         mainFrame = this;
-    }
-    
-    public void addButton(JButton newButton)
-    {
-        if(filterButtons == null)
-            filterButtons = new ArrayList<>();
-        
-        filterButtons.add(newButton);
-        buttonPanel.add(newButton);
-        scrollButtonPanel.invalidate();
     }
     
     public void addMenuOpenFileListener(ActionListener listener)
@@ -147,7 +132,7 @@ public class MainFrame extends JFrame{
                     File file = fc.getSelectedFile();
                     try {
                         readImage = ImageIO.read(file);
-                        imagePanel.setImage(readImage);
+                        model.setReferenceImage(readImage);
                     } catch (IOException ex) {
                         System.out.println("Exception - Could not load image");
                         System.out.println(ex.getMessage());

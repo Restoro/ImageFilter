@@ -3,16 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package imagefilter.filter;
+package imagefilter.listener;
 
 import java.awt.image.BufferedImage;
-import javax.swing.ImageIcon;
 
 /**
  *
- * @author Fritsch
+ * @author hoellinger
  */
-public interface FilterInterface {
-    public BufferedImage processImage(BufferedImage image);
-    public ImageIcon getPreview();    
+public interface DisplayImageChangedListener
+{
+    public void displayImageChanged(BufferedImage image);
 }

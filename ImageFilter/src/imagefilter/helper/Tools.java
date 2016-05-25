@@ -68,5 +68,10 @@ public class Tools {
         }
         return classes;
     }
+    
+    public static URL getResource(String resource)
+    {
+        return Tools.class.getClassLoader().getResource(resource);
+    }
 
 }
