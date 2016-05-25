@@ -19,6 +19,11 @@ import java.util.Enumeration;
  */
 public class Tools {
 
+    public static int boundaryCheck (double value)
+    {
+        return (int) Math.min(Math.max(Math.round(value), 0), 255);
+    }
+    
     public static BufferedImage convertToStandardType(BufferedImage sourceImage) {
         return convertToType(sourceImage, Settings.IMAGE_STANDARD_TYPE);
     }
