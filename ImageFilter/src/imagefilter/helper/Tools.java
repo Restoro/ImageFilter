@@ -83,4 +83,12 @@ public class Tools {
         return Tools.class.getClassLoader().getResource(resource);
     }
 
+    public static double checkBoundaries(double value, double min, double max)
+    {
+        if(value < min)
+            return min;
+        if(value > max)
+            return max;
+        return value;
+    }
 }
