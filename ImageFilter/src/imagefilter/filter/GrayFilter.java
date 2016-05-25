@@ -41,14 +41,12 @@ public class GrayFilter implements FilterInterface{
     }
 
     @Override
-    public ImageIcon getPreview()
-    {
+    public ImageIcon getPreview(){
         return new ImageIcon(Tools.getResource("scrollright.png"));
     }
 
     @Override
-    public String toString()
-    {
+    public String toString(){
         return "Gray";
     }
     
