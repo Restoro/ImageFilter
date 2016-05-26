@@ -15,7 +15,11 @@ import javax.swing.ImageIcon;
  */
 public class GaussianBlurFilter implements FilterInterface
 {
-
+    // we use an modified version of the gaussian blur filter, because of smaller process time
+    // the one-dimensional blur filter is applied line by line
+    // but to get the two-dimensional gaussian blur effect, the one-dimensional logic is applied two times
+    // once horizontally and once vertically
+    
     @Override
     public BufferedImage processImage(BufferedImage image) {
 
@@ -36,10 +40,12 @@ public class GaussianBlurFilter implements FilterInterface
         // second apply to convole Pixels vertically
         convolve(matrix, destPixels, srcPixels, height, width);
 
+        BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
+        
         // sets the convolved Pixels (now again in the srcPixels array, becuase of twice used) to the image
-        image.setRGB(0, 0, width, height, srcPixels, 0, width);
+        img.setRGB(0, 0, width, height, srcPixels, 0, width);
 
-        return image;
+        return img;
     }
 
     // the matrix values are applied to every pixel
