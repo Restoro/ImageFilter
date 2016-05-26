@@ -5,48 +5,43 @@
  */
 package imagefilter;
 
+import imagefilter.filter.FilterClassLoader;
 import imagefilter.filter.FilterInterface;
-import imagefilter.helper.Tools;
 import imagefilter.model.Model;
 import imagefilter.view.MainFrame;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFrame;
 
 /**
  *
  * @author Fritsch
  */
-public class ImageFilter {
+public class ImageFilter
+{
 
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public static void main(String[] args)
+    {
         // TODO code application logic here
         Model model = new Model();
-        setFilters(model);
+        setFilters(model, args == null || args.length == 0 ? "" : args[0]);
         drawWindow(model);
     }
-    
-    private static void drawWindow(Model model) {
-        MainFrame frame = new MainFrame(400,400, model);
+
+    private static void drawWindow(Model model)
+    {
+        MainFrame frame = new MainFrame(400, 400, model);
         frame.setVisible(true);
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
     }
-    
-    private static void setFilters(Model model)
+
+    private static void setFilters(Model model, String pluginDirectory)
     {
-        try {
-            Class[] filters = Tools.getClasses("imagefilter.filter");
-            for (Class filter : filters) {
-                if (FilterInterface.class.isAssignableFrom(filter) && !FilterInterface.class.equals(filter)) {
-                    model.addFilter((FilterInterface) filter.newInstance());
-                }
-            }
-        } catch (ClassNotFoundException | IOException | InstantiationException | IllegalAccessException ex) {
-            Logger.getLogger(ImageFilter.class.getName()).log(Level.SEVERE, null, ex);
+        FilterClassLoader cl = new FilterClassLoader(pluginDirectory);
+        for(FilterInterface filter : cl.getAllFilters())
+        {
+            model.addFilter(filter);
         }
     }
 }
