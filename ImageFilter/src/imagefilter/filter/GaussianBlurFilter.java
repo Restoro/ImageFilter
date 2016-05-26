@@ -150,4 +150,9 @@ public class GaussianBlurFilter implements FilterInterface
     public ImageIcon getPreview() {
         return new ImageIcon(Tools.getResource("scrollright.png"));
     }
+    
+    @Override
+    public String toString() {
+        return "Gaussian Blur";
+    }
 }
