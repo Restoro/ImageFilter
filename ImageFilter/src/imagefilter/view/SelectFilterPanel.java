@@ -14,6 +14,7 @@ import java.util.Collection;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 
 /**
@@ -25,6 +26,7 @@ public class SelectFilterPanel extends JPanel
     private final JButton btnLeft;
     private final JButton btnRight;
     private final JScrollPane scrpFilters;
+    private final JScrollBar scrpFilterHorScrl;
     private final JPanel panFilters;
     private final Model model;
 
@@ -34,6 +36,7 @@ public class SelectFilterPanel extends JPanel
         this.btnRight = new JButton();
         this.panFilters = new JPanel();
         this.scrpFilters = new JScrollPane();
+        this.scrpFilterHorScrl = scrpFilters.getHorizontalScrollBar();
         init();
 
         this.model = model;
@@ -52,7 +55,7 @@ public class SelectFilterPanel extends JPanel
 
         scrpFilters.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrpFilters.setViewportView(panFilters);
-        scrpFilters.getHorizontalScrollBar().setBlockIncrement(105);
+        scrpFilterHorScrl.setBlockIncrement(105);
         
         panFilters.setLayout(new FlowLayout(FlowLayout.LEFT));
 
@@ -63,12 +66,12 @@ public class SelectFilterPanel extends JPanel
 
     private void scrollLeft()
     {
-        scrpFilters.getHorizontalScrollBar().setValue( scrpFilters.getHorizontalScrollBar().getValue() - scrpFilters.getHorizontalScrollBar().getBlockIncrement());
+        scrpFilterHorScrl.setValue( scrpFilterHorScrl.getValue() - scrpFilterHorScrl.getBlockIncrement());
     }
 
     private void scrollRight()
     {
-        scrpFilters.getHorizontalScrollBar().setValue( scrpFilters.getHorizontalScrollBar().getValue() + scrpFilters.getHorizontalScrollBar().getBlockIncrement());
+        scrpFilterHorScrl.setValue( scrpFilterHorScrl.getValue() + scrpFilterHorScrl.getBlockIncrement());
     }
 
     private void updateFilters(Collection<FilterInterface> filters)
