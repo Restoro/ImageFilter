@@ -11,7 +11,7 @@ import javax.swing.ImageIcon;
 
 /**
  *
- * @author chger_000
+ * @author Gerstberger
  */
 public class GaussianBlurFilter implements FilterInterface
 {
