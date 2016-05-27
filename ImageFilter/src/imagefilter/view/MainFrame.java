@@ -38,7 +38,6 @@ public class MainFrame extends JFrame{
     private ImagePanel imagePanel;
     private JMenuItem openFile;
     private MenuHandler handler;
-    private DefaultListModel filterListModel;
     private JList filterList;
     private Model model;
 
@@ -77,15 +76,10 @@ public class MainFrame extends JFrame{
         
         this.add(new SelectFilterPanel(model),BorderLayout.SOUTH);
         
-        filterListModel = new DefaultListModel();
-        filterListModel.addElement("Test1");
-        filterListModel.addElement("Test2");
-        filterListModel.addElement("Test3");
-        filterList = new JList(filterListModel);
-        FilterListRenderer renderer = new FilterListRenderer(1);
-        filterList.setCellRenderer(renderer);
-        
-        filterList.setPrototypeCellValue("Dies ist ein String");
+        FilterListRenderer filterListRenderer = new FilterListRenderer();
+        FilterListModel filterListModel = new FilterListModel(model, filterListRenderer);
+        filterList = new FilterList(filterListModel);
+        filterList.setCellRenderer(filterListRenderer);
         this.add(filterList, BorderLayout.WEST);
         
         mainFrame = this;

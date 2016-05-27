@@ -74,12 +74,14 @@ public class SelectFilterLabel extends JLabel
 
     private void lblDoubleClick()
     {
-
+        model.addApplyingFilter(filter);
     }
 
     private void lblClick()
     {
-        model.setDisplayImage(filter);
+        //model.setDisplayImage(filter);
+        
+        model.addApplyingFilter(filter);
     }
 
     @Override

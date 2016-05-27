@@ -59,6 +59,6 @@ public class FilterListRenderer extends DefaultListCellRenderer
     public void setCurrentOpIndex(int currentOpIndex)
     {
         this.currentOpIndex = currentOpIndex;
+        this.repaint();
     }
-
 }
