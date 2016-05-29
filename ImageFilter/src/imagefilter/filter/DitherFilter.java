@@ -5,6 +5,7 @@
  */
 package imagefilter.filter;
 
+import imagefilter.helper.Settings;
 import imagefilter.helper.Tools;
 import java.awt.image.BufferedImage;
 import javax.swing.ImageIcon;
@@ -47,6 +48,7 @@ public class DitherFilter implements FilterInterface
     @Override
     public BufferedImage processImage(BufferedImage image) {
 
+        image = Tools.convertToStandardType(image);
         // select color palette -> ATTENTION: user should be able to select the palette!!!
         palette = paletteColor;
         
@@ -85,7 +87,7 @@ public class DitherFilter implements FilterInterface
                 if (x+1 < width && y+1 < height)    inPixels[yOffset + width + x+1] = add(inPixels[yOffset + width + x+1], mul(rgbErr, 1.0f / 16));
             }
         }
-        BufferedImage dest = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
+        BufferedImage dest = new BufferedImage(width, height, Settings.IMAGE_STANDARD_TYPE);
         dest.setRGB(0, 0, width, height, outPixels, 0, width);
 
         return dest;

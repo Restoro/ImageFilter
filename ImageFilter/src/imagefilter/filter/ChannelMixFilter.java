@@ -5,6 +5,7 @@
  */
 package imagefilter.filter;
 
+import imagefilter.helper.Settings;
 import imagefilter.helper.Tools;
 import java.awt.image.BufferedImage;
 import javax.swing.ImageIcon;
@@ -26,6 +27,7 @@ public class ChannelMixFilter implements FilterInterface
         int height = image.getHeight();
         int[] inPixels = new int[width * height];
         int[] outPixels = new int[width * height];
+        image = Tools.convertToStandardType(image);
         
         image.getRGB(0, 0, width, height, inPixels, 0, width);
         
@@ -44,7 +46,7 @@ public class ChannelMixFilter implements FilterInterface
             }
         }
         
-        BufferedImage dest = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
+        BufferedImage dest = new BufferedImage(width, height, Settings.IMAGE_STANDARD_TYPE);
         dest.setRGB(0, 0, width, height, outPixels, 0, width);
         
         return dest;

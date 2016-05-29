@@ -5,6 +5,7 @@
  */
 package imagefilter.filter;
 
+import imagefilter.helper.Settings;
 import imagefilter.helper.Tools;
 import java.awt.image.BufferedImage;
 import javax.swing.ImageIcon;
@@ -31,11 +32,12 @@ public class WaterFilter implements FilterInterface
         int[] inPixels = new int[width * height];
         int[] outPixels = new int[width * height];
 
+        image = Tools.convertToStandardType(image);
         image.getRGB(0, 0, width, height, inPixels, 0, width);
 
         waterFilter(inPixels, outPixels, width, height);
 
-        BufferedImage dest = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
+        BufferedImage dest = new BufferedImage(width, height, Settings.IMAGE_STANDARD_TYPE);
         dest.setRGB(0, 0, width, height, outPixels, 0, width);
 
         return dest;
