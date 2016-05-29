@@ -5,9 +5,9 @@
  */
 package imagefilter.model;
 
-import imagefilter.filter.FilterCallable;
+import imagefilter.helper.FilterCallable;
 import imagefilter.filter.FilterInterface;
-import imagefilter.filter.FilterTask;
+import imagefilter.helper.FilterTask;
 import imagefilter.listener.ApplyingFiltersChangedListener;
 import imagefilter.listener.FiltersChangedListener;
 import java.awt.image.BufferedImage;
@@ -44,8 +44,8 @@ public class Model
 
     private FilterTask filterTask;
     private FilterCallable filterCallable;
-    private Consumer<BufferedImage> filterFinished;
-    private ExecutorService filterProcessor;
+    private final Consumer<BufferedImage> filterFinished;
+    private final ExecutorService filterProcessor;
     private volatile boolean isProcessorWorking;
     private volatile boolean stop;
 

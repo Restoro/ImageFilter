@@ -27,9 +27,10 @@ public class MirrorFilter implements FilterInterface {
         if (image.getRaster().getDataBuffer() instanceof DataBufferByte) {
             byte[] pixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
 
-            for (int rowY = 0; rowY < proceedImage.getHeight(); rowY += rate) {
-            for (int colX = 0; colX  < proceedImage.getWidth(); colX += rate) {
-                int index = (colX + (rowY * proceedImage.getWidth()))*3;
+            //Subsample Image
+            for (int rowY = 0; rowY < image.getHeight(); rowY += rate) {
+            for (int colX = 0; colX  < image.getWidth(); colX += rate) {
+                int index = (colX + (rowY * image.getWidth()))*3;
                 int b = pixels[index] & 0xFF;
                 int g = pixels[index+1] & 0xFF;
                 int r = pixels[index+2] & 0xFF;
@@ -41,7 +42,7 @@ public class MirrorFilter implements FilterInterface {
                 r *= Settings.MIRROR_DARKNESS;
                 g *= Settings.MIRROR_DARKNESS;
                 b *= Settings.MIRROR_DARKNESS;
-                proceedImage.setRGB((colX / rate)+offset, proceedImage.getHeight()-1-(rowY/rate), ((r) << 16 | (g) << 8 | (b)));
+                proceedImage.setRGB((colX / rate)+offset, image.getHeight()-1-(rowY/rate), ((r) << 16 | (g) << 8 | (b)));
             }
         }
             return proceedImage;

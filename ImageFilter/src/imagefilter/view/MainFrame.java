@@ -28,15 +28,14 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  *
  * @author Fritsch
  */
+public class MainFrame extends JFrame {
 
-
-public class MainFrame extends JFrame{
-    private ArrayList<JButton> filterButtons;
     private JMenuBar menuBar;
     private JMenu menu;
     private JFrame mainFrame;
     private ImagePanel imagePanel;
     private JMenuItem openFile;
+    private JMenuItem reset;
     private MenuHandler handler;
     private JList filterList;
     private Model model;
@@ -44,100 +43,87 @@ public class MainFrame extends JFrame{
     public MainFrame() {
         createWindow();
     }
-    
-    public MainFrame(int width, int heigth, Model model)
-    {
+
+    public MainFrame(int width, int heigth, Model model) {
         this.setSize(width, heigth);
         this.model = model;
         createWindow();
     }
-    
-    private void createWindow()
-    {
+
+    private void createWindow() {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        
+
         handler = new MenuHandler();
         JFrame newFrame = new JFrame();
         newFrame.setLayout(new BorderLayout());
-        
+
         menuBar = new JMenuBar();
-        
+
         menu = new JMenu("File");
         openFile = new JMenuItem("Open File");
         openFile.addActionListener(handler);
         menu.add(openFile);
         
+        reset = new JMenuItem("Reset Image");
+        reset.addActionListener(handler);
+        menu.add(reset);
+
         menuBar.add(menu);
-        
+
         this.setJMenuBar(menuBar);
-        
+
         imagePanel = new ImagePanel(model);
         this.add(imagePanel, BorderLayout.CENTER);
-        
-        this.add(new SelectFilterPanel(model),BorderLayout.SOUTH);
-        
+
+        this.add(new SelectFilterPanel(model), BorderLayout.SOUTH);
+
         FilterListRenderer filterListRenderer = new FilterListRenderer();
         FilterListModel filterListModel = new FilterListModel(model, filterListRenderer);
         filterList = new FilterList(filterListModel);
         filterList.setCellRenderer(filterListRenderer);
         this.add(filterList, BorderLayout.WEST);
-        
+
         mainFrame = this;
     }
-    
-    public void addMenuOpenFileListener(ActionListener listener)
-    {
+
+    public void addMenuOpenFileListener(ActionListener listener) {
         openFile.addActionListener(listener);
     }
-    
-    public void setImageOfImagePanel(BufferedImage image)
-    {
+
+    public void setImageOfImagePanel(BufferedImage image) {
         imagePanel.setImage(image);
     }
-    
+
 //    public void addFilterBtnListener(ActionListener listener) {
 //        btnSearch.addActionListener(listener);
 //    }
-    
-    public class MenuHandler implements ActionListener{
+    public class MenuHandler implements ActionListener {
 
         private final JFileChooser fc;
-        private BufferedImage readImage;
-        
+
         public MenuHandler() {
             fc = new JFileChooser();
         }
 
-        public void addListenerToMenuItem(JMenuItem item)
-        {
-            item.addActionListener(this);
-        }
-        
-        public BufferedImage getImage()
-        {
-            return readImage;
-        }
-        
         @Override
         public void actionPerformed(ActionEvent e) {
-            if(e.getSource() == openFile)
-            {
+            if (e.getSource() == openFile) {
                 fc.setFileFilter(new FileNameExtensionFilter("Image files", ImageIO.getReaderFileSuffixes()));
                 fc.setMultiSelectionEnabled(false);
                 int returnVal = fc.showOpenDialog(mainFrame);
-                if(returnVal == JFileChooser.APPROVE_OPTION){
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
                     File file = fc.getSelectedFile();
                     try {
-                        readImage = ImageIO.read(file);
-                        model.setReferenceImage(readImage);
+                        model.setReferenceImage(ImageIO.read(file));
                     } catch (IOException ex) {
                         System.out.println("Exception - Could not load image");
                         System.out.println(ex.getMessage());
                     }
                 }
+            } else if (e.getSource() == reset) {
+                model.setReferenceImage(model.getReferenceImage());
             }
         }
-        
-        
+
     }
 }

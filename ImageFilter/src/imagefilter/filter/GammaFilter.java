@@ -20,7 +20,7 @@ public class GammaFilter implements FilterInterface{
     public BufferedImage processImage(BufferedImage image) {
         
         //parameter gamma 
-        float gamma = 0.5f ;
+        float gamma = Settings.GAMMA;
         
         BufferedImage proceedImage = new BufferedImage(image.getWidth(), image.getHeight(), Settings.IMAGE_STANDARD_TYPE);
         image = Tools.convertToStandardType(image);

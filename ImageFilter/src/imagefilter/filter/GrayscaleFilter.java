@@ -17,9 +17,6 @@ import javax.swing.ImageIcon;
  */
 public class GrayscaleFilter implements FilterInterface {
 
-    public GrayscaleFilter() {
-    }
-
     @Override
     public BufferedImage processImage(BufferedImage image) {
 
