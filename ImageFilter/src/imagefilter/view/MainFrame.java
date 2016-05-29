@@ -131,6 +131,7 @@ public class MainFrame extends JFrame
             @Override
             public void addApplyingFilter(FilterInterface filter)
             {
+                filterList.setSelectedIndex(filterCount);
                 filterCount++;
                 checkEnabled();
             }

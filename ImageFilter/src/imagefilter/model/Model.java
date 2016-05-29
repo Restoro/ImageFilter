@@ -30,6 +30,8 @@ import java.util.function.Consumer;
  */
 public class Model
 {
+
+    private int lastSelectedIndex = -1;
     private BufferedImage referenceImage;
     private BufferedImage displayImage;
     private volatile int currentImage;
@@ -128,6 +130,7 @@ public class Model
     {
         this.displayImage = image;
         fireDisplayImageChanged();
+        lastSelectedIndex = applyingFilters.size() - 1;
     }
 
     public void setDisplayImage(FilterInterface filter)
@@ -146,6 +149,7 @@ public class Model
             return;
         }
         setDisplayImage(applyingFilters.get(index).image);
+        lastSelectedIndex = index;
     }
 
     public void addDisplayImageChangedListener(DisplayImageChangedListener listener)
@@ -182,9 +186,13 @@ public class Model
 
     public void addApplyingFilter(FilterInterface filter)
     {
-        if(filter == null||referenceImage==null)
+        if(filter == null || referenceImage == null)
         {
             return;
+        }
+        if(lastSelectedIndex != applyingFilters.size() - 1 && lastSelectedIndex != -1)
+        {
+            continueWithApplyingFilter(lastSelectedIndex);
         }
         fireApplyingFiltersChanged(listener -> listener.addApplyingFilter(filter));
         synchronized(applyingFilters)
@@ -226,6 +234,25 @@ public class Model
             currentImage = index - 1;
             applyFilters();
         }
+    }
+
+    private void continueWithApplyingFilter(int index)
+    {
+        if(index >= applyingFilters.size())
+        {
+            return;
+        }
+        for(int toRemove = applyingFilters.size() - 1; toRemove > index; toRemove--)
+        {
+            //Lambda needs final variables as reference
+            final int indexToRemove = toRemove;
+            synchronized(applyingFilters)
+            {
+                applyingFilters.remove(indexToRemove);
+            }
+            fireApplyingFiltersChanged(listener -> listener.removeApplyingFilter(indexToRemove));
+        }
+        applyFilters(index);
     }
 
     public BufferedImage getCurrentImage()
@@ -285,11 +312,12 @@ public class Model
 
     public void startApplyingNextFilter()
     {
-        fireApplyingFiltersChanged(listener->listener.startApplyingFilter(currentImage+1));
+        fireApplyingFiltersChanged(listener -> listener.startApplyingFilter(currentImage + 1));
     }
 
     public class FilterPair
     {
+
         public FilterInterface filter;
         public BufferedImage image;
 

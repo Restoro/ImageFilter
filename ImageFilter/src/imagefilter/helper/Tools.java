@@ -18,7 +18,7 @@ import java.util.Enumeration;
  * @author Fritsch
  */
 public class Tools {
-
+    
     public static int boundaryCheck (double value)
     {
         return (int) Math.min(Math.max(Math.round(value), 0), 255);

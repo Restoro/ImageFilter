@@ -67,7 +67,7 @@ public class SelectFilterLabel extends JLabel
             @Override
             public void mouseReleased(MouseEvent e)
             {
-        SelectFilterLabel.this.setBackground(UNPRESSED_COLOR);
+                SelectFilterLabel.this.setBackground(UNPRESSED_COLOR);
             }
         });
     }

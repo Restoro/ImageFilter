@@ -5,6 +5,7 @@
  */
 package imagefilter.filter;
 
+import imagefilter.helper.Settings;
 import imagefilter.helper.Tools;
 import java.awt.image.BufferedImage;
 import javax.swing.ImageIcon;
@@ -32,6 +33,7 @@ public class GaussianBlurFilter implements FilterInterface
 
         float[] matrix = createMatrix(radius);
 
+        image = Tools.convertToStandardType(image);
         // saves the pixels of the image in a one-dimensional array
         image.getRGB(0, 0, width, height, srcPixels, 0, width);
 
@@ -40,7 +42,7 @@ public class GaussianBlurFilter implements FilterInterface
         // second apply to convole Pixels vertically
         convolve(matrix, destPixels, srcPixels, height, width);
 
-        BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
+        BufferedImage img = new BufferedImage(width, height, Settings.IMAGE_STANDARD_TYPE);
         
         // sets the convolved Pixels (now again in the srcPixels array, becuase of twice used) to the image
         img.setRGB(0, 0, width, height, srcPixels, 0, width);
