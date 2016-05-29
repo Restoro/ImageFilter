@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package imagefilter.filter;
+package imagefilter.helper;
 
 import java.awt.image.BufferedImage;
 import java.util.concurrent.Callable;
@@ -33,10 +33,7 @@ public class FilterTask extends FutureTask<BufferedImage>
         try
         {
             c.accept(get());
-        } catch(InterruptedException ex)
-        {
-            Logger.getLogger(FilterTask.class.getName()).log(Level.SEVERE, null, ex);
-        } catch(ExecutionException ex)
+        } catch(InterruptedException | ExecutionException ex)
         {
             Logger.getLogger(FilterTask.class.getName()).log(Level.SEVERE, null, ex);
         }

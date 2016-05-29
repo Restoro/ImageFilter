@@ -19,7 +19,6 @@ public class EmbossFilter implements FilterInterface{
     @Override
     public BufferedImage processImage(BufferedImage image) {
         final double[][] filter = {{-1, -1, 0}, {-1, 0, 1}, {0, 1, 1}};
-        //final double[][] filter = {{-1,-1,-1,-1,0},{-1,-1,-1,0,1},{-1,-1,0,1,1},{-1,0,1,1,1},{0,1,1,1,1}};
         return ConvolveOperation.processImage(image, filter, 1, 128);
     }
 

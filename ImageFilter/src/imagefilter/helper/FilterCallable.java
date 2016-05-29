@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package imagefilter.filter;
+package imagefilter.helper;
 
+import imagefilter.filter.FilterInterface;
 import java.awt.image.BufferedImage;
 import java.util.concurrent.Callable;
 

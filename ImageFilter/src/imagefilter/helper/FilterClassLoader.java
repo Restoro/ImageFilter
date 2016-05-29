@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package imagefilter.filter;
+package imagefilter.helper;
 
+import imagefilter.filter.FilterInterface;
 import imagefilter.helper.Tools;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -97,7 +98,7 @@ public class FilterClassLoader extends ClassLoader
             });
         } catch(IOException e)
         {
-
+            System.out.println("Error in Classloader:"+e.getMessage());
         }
         return filters;
     }

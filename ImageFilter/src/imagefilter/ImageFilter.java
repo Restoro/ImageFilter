@@ -5,7 +5,7 @@
  */
 package imagefilter;
 
-import imagefilter.filter.FilterClassLoader;
+import imagefilter.helper.FilterClassLoader;
 import imagefilter.filter.FilterInterface;
 import imagefilter.model.Model;
 import imagefilter.view.MainFrame;
