@@ -5,8 +5,8 @@
  */
 package imagefilter.model;
 
-import imagefilter.helper.FilterCallable;
 import imagefilter.filter.FilterInterface;
+import imagefilter.helper.FilterOperations;
 import imagefilter.helper.FilterTask;
 import imagefilter.listener.ApplyingFiltersChangedListener;
 import imagefilter.listener.FiltersChangedListener;
@@ -18,12 +18,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import imagefilter.listener.DisplayImageChangedListener;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -42,12 +41,9 @@ public class Model
     private final List<FiltersChangedListener> filtersChangedListeners;
     private final List<ApplyingFiltersChangedListener> applyingFiltersChangedListeners;
 
-    private FilterTask filterTask;
-    private FilterCallable filterCallable;
-    private final Consumer<BufferedImage> filterFinished;
-    private final ExecutorService filterProcessor;
-    private volatile boolean isProcessorWorking;
-    private volatile boolean stop;
+    private final ScheduledExecutorService filterProcessor;
+    private final FilterOperations filterOpRunnable;
+    private ScheduledFuture filterResult;
 
     public Model()
     {
@@ -56,31 +52,13 @@ public class Model
         this.applyingFiltersChangedListeners = new LinkedList<>();
         this.allFilters = new HashSet<>();
         this.applyingFilters = new LinkedList<>();
-        filterCallable = new FilterCallable(null, null);
-        filterFinished = image
-                -> 
-                {
-                    System.out.println("Complete");
-                    if(stop)
-                    {
-                        return;
-                    }
-                    synchronized(applyingFilters)
-                    {
-                        currentImage++;
-                        applyingFilters.get(currentImage).image = image;
-                        if(currentImage != applyingFilters.size() - 1)
-                        {
-                            startProcessing();
-                        } else
-                        {
-                            setDisplayImage(getCurrentImage());
-                            fireApplyingFiltersChanged(listener -> listener.finished());
-                            isProcessorWorking = false;
-                        }
-                    }
-        };
-        filterProcessor = Executors.newSingleThreadExecutor();
+        this.filterProcessor = Executors.newSingleThreadScheduledExecutor();
+        this.filterOpRunnable = new FilterOperations(this, applyingFilters);
+    }
+
+    public BufferedImage getDisplayImage()
+    {
+        return displayImage;
     }
 
     public BufferedImage getReferenceImage()
@@ -204,67 +182,53 @@ public class Model
 
     public void addApplyingFilter(FilterInterface filter)
     {
+        if(filter == null)
+        {
+            return;
+        }
         fireApplyingFiltersChanged(listener -> listener.addApplyingFilter(filter));
-        applyingFilters.add(new FilterPair(filter, null));
+        synchronized(applyingFilters)
+        {
+            applyingFilters.add(new FilterPair(filter, null));
+        }
         applyFilters();
     }
 
     public void removeApplyingFilter(int index)
     {
-        if(index >= applyingFilters.size())
+        if(index >= applyingFilters.size() || index < 0)
         {
             return;
         }
         fireApplyingFiltersChanged(listener -> listener.removeApplyingFilter(index));
-        applyingFilters.remove(index);
+        synchronized(applyingFilters)
+        {
+            applyingFilters.remove(index);
+        }
         applyFilters(index);
     }
 
     private void applyFilters()
     {
-        if(!isProcessorWorking)
+        if(filterResult == null || filterResult.isCancelled() || filterResult.isDone())
         {
-            startProcessing();
+            filterOpRunnable.setCurrent(currentImage);
+            filterResult = filterProcessor.schedule(filterOpRunnable, 0, TimeUnit.MILLISECONDS);
         }
     }
 
     private void applyFilters(int index)
     {
-        if(currentImage > index)
+        if((currentImage + 1) >= index)
         {
-            stop = true;
-            try
-            {
-                filterTask.get();
-            } catch(InterruptedException | ExecutionException ex)
-            {
-                Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            stop = false;
+            filterResult.cancel(true);
+            filterResult = null;
             currentImage = index - 1;
-            startProcessing();
+            applyFilters();
         }
     }
 
-    private void startProcessing()
-    {
-        if(applyingFilters.isEmpty())
-        {
-            currentImage = -1;
-        }
-        if(currentImage == applyingFilters.size() - 1)
-        {
-            return;
-        }
-        setDisplayImage(getCurrentImage());
-        fireApplyingFiltersChanged(listener -> listener.startApplyingFilter(currentImage + 1));
-        isProcessorWorking = true;
-        filterCallable.set(applyingFilters.get(currentImage + 1).filter, getCurrentImage());
-        filterTask = new FilterTask(filterCallable, filterFinished);
-        filterProcessor.execute(filterTask);
-    }
-
-    private BufferedImage getCurrentImage()
+    public BufferedImage getCurrentImage()
     {
         return currentImage == -1 ? referenceImage : applyingFilters.get(currentImage).image;
     }
@@ -295,10 +259,39 @@ public class Model
         }
     }
 
-    private class FilterPair
+    public void appliedFilter(BufferedImage img)
     {
-        FilterInterface filter;
-        BufferedImage image;
+        synchronized(applyingFilters)
+        {
+            currentImage++;
+            applyingFilters.get(currentImage).image = img;
+        }
+        setDisplayImage(img);
+    }
+
+    public void finishedApplyingFilters()
+    {
+        synchronized(applyingFilters)
+        {
+            currentImage = applyingFilters.size() - 1;
+        }
+        fireApplyingFiltersChanged(listener -> listener.finished());
+    }
+
+    public FilterPair getApplyingFilterAndSourceImg(int current)
+    {
+        return new FilterPair(applyingFilters.get(current + 1).filter, getCurrentImage());
+    }
+
+    public void startApplyingNextFilter()
+    {
+        fireApplyingFiltersChanged(listener->listener.startApplyingFilter(currentImage+1));
+    }
+
+    public class FilterPair
+    {
+        public FilterInterface filter;
+        public BufferedImage image;
 
         public FilterPair(FilterInterface filter, BufferedImage image)
         {

@@ -13,12 +13,12 @@ import java.util.concurrent.Callable;
  *
  * @author hoellinger
  */
-public class FilterCallable implements Callable<BufferedImage>
+public class FilterOperation implements Callable<BufferedImage>
 {
     private FilterInterface filter;
     private BufferedImage image;
 
-    public FilterCallable(FilterInterface filter, BufferedImage image)
+    public FilterOperation(FilterInterface filter, BufferedImage image)
     {
         this.filter = filter;
         this.image = image;
@@ -27,6 +27,7 @@ public class FilterCallable implements Callable<BufferedImage>
     @Override
     public BufferedImage call() throws Exception
     {
+        System.out.println("start filter: " + filter.toString());
         this.image = filter.processImage(image);
         return image;
     }
