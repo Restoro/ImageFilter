@@ -259,10 +259,7 @@ public class MainFrame extends JFrame
             {
                 if(!file.exists())
                 {
-                    System.out.println(file.getAbsolutePath());
-                    System.out.println(file.getPath());
                     Files.createFile(Paths.get(file.getAbsolutePath()));
-                    System.out.println("create new file: ");
                 }
                 ImageIO.write(image, getFileExtension(file), file);
             } catch(IOException ex)

@@ -56,7 +56,7 @@ public class SelectFilterPanel extends JPanel
         scrpFilters.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrpFilters.setViewportView(panFilters);
         scrpFilterHorScrl.setBlockIncrement(105);
-        
+
         panFilters.setLayout(new FlowLayout(FlowLayout.LEFT));
 
         this.add(btnLeft, BorderLayout.WEST);
@@ -66,12 +66,12 @@ public class SelectFilterPanel extends JPanel
 
     private void scrollLeft()
     {
-        scrpFilterHorScrl.setValue( scrpFilterHorScrl.getValue() - scrpFilterHorScrl.getBlockIncrement());
+        scrpFilterHorScrl.setValue(scrpFilterHorScrl.getValue() - scrpFilterHorScrl.getBlockIncrement());
     }
 
     private void scrollRight()
     {
-        scrpFilterHorScrl.setValue( scrpFilterHorScrl.getValue() + scrpFilterHorScrl.getBlockIncrement());
+        scrpFilterHorScrl.setValue(scrpFilterHorScrl.getValue() + scrpFilterHorScrl.getBlockIncrement());
     }
 
     private void updateFilters(Collection<FilterInterface> filters)
@@ -80,9 +80,9 @@ public class SelectFilterPanel extends JPanel
 
         for(FilterInterface filter : filters)
         {
-            panFilters.add(new SelectFilterLabel(model, filter));
+            panFilters.add(new SelectFilterLabel(model, filter, this));
         }
-        
+
         this.validate();
     }
 }

@@ -182,7 +182,7 @@ public class Model
 
     public void addApplyingFilter(FilterInterface filter)
     {
-        if(filter == null)
+        if(filter == null||referenceImage==null)
         {
             return;
         }

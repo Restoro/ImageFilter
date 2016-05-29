@@ -7,7 +7,6 @@ package imagefilter.view;
 
 import imagefilter.model.Model;
 import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
@@ -42,7 +41,11 @@ public class ImagePanel extends JPanel
     protected void paintComponent(Graphics g)
     {
         super.paintComponent(g);
-        g.drawImage(scaleImage(image), 0, 0, null);
+        BufferedImage img = scaleImage(image);
+        if(img != null)
+        {
+            g.drawImage(img, getMiddle(img.getWidth(), this.getWidth()), getMiddle(img.getHeight(), this.getHeight()), null);
+        }
     }
 
     public void setImage(BufferedImage image)
@@ -76,6 +79,11 @@ public class ImagePanel extends JPanel
             b = true;
         }
         return b ? getScaledImage(image, iWidth, iHeight) : image;
+    }
+
+    private int getMiddle(int img, int panel)
+    {
+        return panel / 2 - img / 2;
     }
 
     private static BufferedImage getScaledImage(BufferedImage image, int width, int height)
