@@ -5,7 +5,11 @@
  */
 package imagefilter.filter;
 
+import imagefilter.model.Setting;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.ImageIcon;
 
 /**
  *
@@ -13,4 +17,8 @@ import java.awt.image.BufferedImage;
  */
 public interface FilterInterface {
     public BufferedImage processImage(BufferedImage image);
+    public ImageIcon getPreview();    
+    public Setting[] getSettings();
+    @Override
+    public String toString();
 }
