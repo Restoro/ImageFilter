@@ -7,8 +7,11 @@ package imagefilter;
 
 import imagefilter.helper.FilterClassLoader;
 import imagefilter.filter.FilterInterface;
+import imagefilter.helper.Tools;
 import imagefilter.model.Model;
 import imagefilter.view.MainFrame;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import javax.swing.JFrame;
 
 /**
@@ -25,7 +28,7 @@ public class ImageFilter
     {
         // TODO code application logic here
         Model model = new Model();
-        setFilters(model, args == null || args.length == 0 ? "" : args[0]);
+        setFilters(model, Paths.get(Tools.getProperty("pluginDirectory")));
         drawWindow(model);
     }
 
@@ -36,10 +39,10 @@ public class ImageFilter
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
     }
 
-    private static void setFilters(Model model, String pluginDirectory)
+    private static void setFilters(Model model, Path pluginDirectory)
     {
-        FilterClassLoader cl = new FilterClassLoader(pluginDirectory);
-        for(FilterInterface filter : cl.getAllFilters())
+        FilterClassLoader cl = FilterClassLoader.getFilterClassLoader();
+        for(FilterInterface filter : cl.getAllFilters(pluginDirectory))
         {
             model.addFilter(filter);
         }

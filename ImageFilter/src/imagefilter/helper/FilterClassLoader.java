@@ -6,7 +6,6 @@
 package imagefilter.helper;
 
 import imagefilter.filter.FilterInterface;
-import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -24,31 +23,22 @@ import javax.swing.ImageIcon;
 
 public class FilterClassLoader extends ClassLoader
 {
-    private Path pluginDirectory;
+    private static FilterClassLoader cl;
+    private static final HashMap<Path, FilterInterface> ALLREADY_LOADED_FILTERS = new HashMap<>();
+    private static final HashMap<FilterInterface, Path> ALLREADY_LOADED_FILTERS_REVERSED = new HashMap<>();
 
-    public Path getPluginDirectory()
+    private FilterClassLoader()
     {
-        return pluginDirectory;
+
     }
 
-    public void setPluginDirectory(Path pluginDirectory)
+    public static FilterClassLoader getFilterClassLoader()
     {
-        this.pluginDirectory = pluginDirectory;
-    }
-
-    public FilterClassLoader(String pluginDirectory)
-    {
-        this(Paths.get(pluginDirectory));
-    }
-
-    public FilterClassLoader(Path pluginDirectory)
-    {
-        this.pluginDirectory = pluginDirectory;
-    }
-
-    public FilterClassLoader()
-    {
-
+        if(cl == null)
+        {
+            cl = new FilterClassLoader();
+        }
+        return cl;
     }
 
     public List<FilterInterface> getProjectFilters()
@@ -71,7 +61,7 @@ public class FilterClassLoader extends ClassLoader
         return filters;
     }
 
-    public List<FilterInterface> getPluginFilters()
+    public List<FilterInterface> getPluginFilters(Path pluginDirectory)
     {
         List<FilterInterface> filters = new ArrayList<>();
         ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
@@ -120,9 +110,17 @@ public class FilterClassLoader extends ClassLoader
                             if(FilterInterface.class.isAssignableFrom(c) && !FilterInterface.class.equals(c))
                             {
                                 FilterInterface filter = (FilterInterface) c.newInstance();
-                                filter.setPreview(getPreview(img));
+                                ImageIcon ic = getPreview(img);
+                                Object o = c.getDeclaredMethods();
+                                filter.getPreview();
+                                filter.setPreview(ic);
                                 filters.add(filter);
+                                ALLREADY_LOADED_FILTERS.put(p, filter);
+                                ALLREADY_LOADED_FILTERS_REVERSED.put(filter, p);
                             }
+                        } catch(LinkageError er)
+                        {
+                            filters.add(ALLREADY_LOADED_FILTERS.get(p));
                         } catch(IOException | InstantiationException | IllegalAccessException ex)
                         {
                             Logger.getLogger(FilterClassLoader.class.getName()).log(Level.SEVERE, null, ex);
@@ -136,26 +134,38 @@ public class FilterClassLoader extends ClassLoader
     {
         ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
         byte[] buffer = new byte[1024];
-
+        Path p = Paths.get(path);
         try
         {
-            readFile(Paths.get(path), out, buffer);
+            readFile(p, out, buffer);
             Class c = define(out.toByteArray(), 0, out.size());
             if(FilterInterface.class.isAssignableFrom(c) && !FilterInterface.class.equals(c))
             {
-                return (FilterInterface) c.newInstance();
+                FilterInterface filter = (FilterInterface) c.newInstance();
+                ALLREADY_LOADED_FILTERS.put(p, filter);
+                ALLREADY_LOADED_FILTERS_REVERSED.put(filter, p);
+                return filter;
             }
+        } catch(LinkageError er)
+        {
+            return ALLREADY_LOADED_FILTERS.get(p);
         } catch(Throwable t)
         {
+            int a = 0;
         }
         return null;
     }
 
-    public List<FilterInterface> getAllFilters()
+    public List<FilterInterface> getAllFilters(Path pluginDirectory)
     {
         List<FilterInterface> filters = getProjectFilters();
-        filters.addAll(getPluginFilters());
+        filters.addAll(getPluginFilters(pluginDirectory));
         return filters;
+    }
+
+    public static Path getPathFromFilter(FilterInterface fi)
+    {
+        return ALLREADY_LOADED_FILTERS_REVERSED.get(fi);
     }
 
     private void readFile(Path file, ByteArrayOutputStream out, byte[] buffer) throws IOException
@@ -205,6 +215,7 @@ public class FilterClassLoader extends ClassLoader
 
     private ImageIcon getPreview(Path img) throws IOException
     {
-        return new ImageIcon(ImageIO.read(img.toFile()));
+        ImageIcon ic = new ImageIcon(ImageIO.read(img.toFile()));
+        return ic;
     }
 }

@@ -3,15 +3,27 @@ package imagefilter.view;
 import imagefilter.filter.FilterInterface;
 import imagefilter.helper.FilterClassLoader;
 import imagefilter.helper.Tools;
+import imagefilter.model.Model;
 import java.awt.event.ActionEvent;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -23,13 +35,23 @@ import javax.swing.LayoutStyle;
  */
 public class PluginsDialog extends JDialog
 {
-    private Path pluginDirectory;
-    private DefaultListModel<FilterInterface> model;
+    private static PluginsDialog dialog;
 
-    public PluginsDialog()
+    private Path pluginDirectory;
+    private final DefaultListModel<FilterInterface> listModel;
+    private final List<FilterInterface> newFilter;
+    private final List<FilterInterface> removedFilter;
+    private final List<FilterInterface> installedFilters;
+    private final Model model;
+
+    private PluginsDialog(Model model)
     {
         this.pluginDirectory = Paths.get(Tools.getProperty("pluginDirectory"));
-        this.model = new DefaultListModel<>();
+        this.listModel = new DefaultListModel<>();
+        this.newFilter = new ArrayList<>();
+        this.removedFilter = new ArrayList<>();
+        this.installedFilters = new ArrayList<>();
+        this.model = model;
         init();
         initPlugins();
     }
@@ -46,7 +68,8 @@ public class PluginsDialog extends JDialog
         btnOk = new JButton("OK");
         btnBrowse = new JButton("Browse");
         txtDirectory = new JTextField(pluginDirectory.toString());
-        lstFilter = new JList<>(model);
+        lstFilter = new JList<>(listModel);
+        fc = new JFileChooser();
 
         btnAdd.addActionListener(a -> handleClick(a));
         btnRemove.addActionListener(a -> handleClick(a));
@@ -109,11 +132,19 @@ public class PluginsDialog extends JDialog
 
     private void initPlugins()
     {
-        FilterClassLoader cl = new FilterClassLoader(pluginDirectory);
-        for(FilterInterface filter : cl.getPluginFilters())
+        for(FilterInterface filter : FilterClassLoader.getFilterClassLoader().getPluginFilters(pluginDirectory))
         {
-            model.addElement(filter);
+            listModel.addElement(filter);
         }
+    }
+
+    public static void showPluginDialog(Model model)
+    {
+        if(dialog == null)
+        {
+            dialog = new PluginsDialog(model);
+        }
+        dialog.prepareShowing();
     }
 
     public void setPluginDirectory(Path pluginDirectory)
@@ -125,22 +156,66 @@ public class PluginsDialog extends JDialog
     {
         if(a.getSource() == btnAdd)
         {
-            SearchFilterDialog.show(null);
+            SearchFilterDialog.show(null, filter -> filterSelected(filter));
         } else if(a.getSource() == btnRemove)
         {
-
+            FilterInterface fi = lstFilter.getSelectedValue();
+            if(fi != null)
+            {
+                if(!newFilter.remove(fi))
+                {
+                    installedFilters.remove(fi);
+                    removedFilter.add(fi);
+                }
+                listModel.remove(lstFilter.getSelectedIndex());
+            }
         } else if(a.getSource() == btnBrowse)
         {
-
+            fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            fc.setMultiSelectionEnabled(false);
+            int returnVal = fc.showOpenDialog(PluginsDialog.this);
+            if(returnVal == JFileChooser.APPROVE_OPTION)
+            {
+                Path p = Paths.get(fc.getSelectedFile().getAbsolutePath());
+                Path classes = p.resolve("class");
+                Path imgs = p.resolve("img");
+                try
+                {
+                    createNecessaryPluginFolder(imgs);
+                    createNecessaryPluginFolder(classes);
+                } catch(IOException ex)
+                {
+                    JOptionPane.showMessageDialog(this, "Directory cannot be selected");
+                    return;
+                }
+                txtDirectory.setText(p.toString());
+            }
         } else if(a.getSource() == btnOk)
         {
-
+            closeOk();
         } else if(a.getSource() == btnApply)
         {
-
+            apply();
         } else if(a.getSource() == btnCancel)
         {
+            closeCancled();
+        }
+    }
 
+    private void createNecessaryPluginFolder(Path p) throws IOException
+    {
+        if(!Files.exists(p))
+        {
+            Files.createDirectories(p);
+        }
+    }
+
+    private void filterSelected(FilterInterface filter)
+    {
+        if(filter != null)
+        {
+            newFilter.add(filter);
+            listModel.addElement(filter);
         }
     }
 
@@ -153,4 +228,71 @@ public class PluginsDialog extends JDialog
     private JButton btnBrowse;
     private JTextField txtDirectory;
     private JFileChooser fc;
+
+    private void prepareShowing()
+    {
+        this.setVisible(true);
+    }
+
+    private void closeOk()
+    {
+        apply();
+        close();
+    }
+
+    private void apply()
+    {
+        for(FilterInterface fi : removedFilter)
+        {
+            model.removeFilter(fi);
+            System.out.println(getClass().getClassLoader().getResource(fi.getClass().getName()));
+        }
+        for(FilterInterface fi : newFilter)
+        {
+            model.addFilter(fi);
+            try
+            {
+                addFilter(fi, FilterClassLoader.getPathFromFilter(fi));
+            } catch(IOException ex)
+            {
+                Logger.getLogger(PluginsDialog.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+
+    private void closeCancled()
+    {
+        for(FilterInterface fi : newFilter)
+        {
+            listModel.removeElement(fi);
+        }
+        newFilter.clear();
+        for(FilterInterface fi : removedFilter)
+        {
+            listModel.addElement(fi);
+        }
+        newFilter.clear();
+        close();
+    }
+
+    private void close()
+    {
+        dispose();
+    }
+
+    private void addFilter(FilterInterface fi, Path pathFromFilter) throws IOException
+    {
+        String imgFileName = Tools.nameWithoutExtension(pathFromFilter) + ".png";
+        Path img = pluginDirectory.resolve("img").resolve(imgFileName);
+        ImageIO.write(Tools.fromImageIconToBufferedImage(fi.getPreview()), "png", Files.newOutputStream(img, StandardOpenOption.CREATE, StandardOpenOption.WRITE));
+
+        Path _class = pluginDirectory.resolve("class").resolve(Tools.nameWithExtension(pathFromFilter));
+        if(!Files.exists(_class))
+        {
+            Files.createFile(_class);
+        }
+        Files.copy(pathFromFilter, Files.newOutputStream(_class));
+    }
+    
+    //private void removeFilter(FilterInterface fi, Path pathFromFilter)
 }

@@ -8,7 +8,10 @@ package imagefilter.view;
 import imagefilter.filter.FilterInterface;
 import imagefilter.helper.FilterClassLoader;
 import imagefilter.helper.Tools;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
+import java.util.function.Consumer;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -31,16 +34,28 @@ public class SearchFilterDialog extends JDialog
     private JFileChooser fc;
     private FilterClassLoader cl;
     private BufferedImage img;
-    
-    static{
-        setBufferedImage(TEST_IMAGE);
+    private FilterInterface filter;
+    private FilterInterface filter_intern;
+
+    static
+    {
+        Tools.fromImageIconToBufferedImage(TEST_ICON, TEST_IMAGE);
     }
 
-    private SearchFilterDialog(JFileChooser fc)
+    private SearchFilterDialog(JFileChooser fc, Consumer<FilterInterface> consumer)
     {
         this.fc = fc;
-        this.cl = new FilterClassLoader();
+        this.cl = FilterClassLoader.getFilterClassLoader();
         img = new BufferedImage(TEST_ICON.getIconWidth(), TEST_ICON.getIconHeight(), BufferedImage.TYPE_3BYTE_BGR);
+        addWindowListener(new WindowAdapter()
+            {
+                @Override
+                public void windowClosed(WindowEvent e)
+                {
+                    consumer.accept(filter);
+                }
+                
+});
         init();
     }
 
@@ -48,75 +63,63 @@ public class SearchFilterDialog extends JDialog
     {
         setModal(true);
         setSize(400, 200);
-        
+
         txtPath = new javax.swing.JTextField();
-        btnBrowse = new javax.swing.JButton();
+        txtPath.addActionListener(a -> showFilter());
+        btnBrowse = new javax.swing.JButton("Browse");
+        btnBrowse.addActionListener(a -> showFileChooser());
         panImg = new ImagePanel(null, TEST_IMAGE);
-        btnCancel = new javax.swing.JButton();
-        btnOk = new javax.swing.JButton();
-
-        btnBrowse.setText("Browse");
-
-        /*javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(panImg);
-        panImg.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 53, Short.MAX_VALUE)
-        );*/
-
-        btnCancel.setText("Cancel");
-
-        btnOk.setText("OK");
+        btnCancel = new javax.swing.JButton("Cancel");
+        btnCancel.addActionListener(a -> close());
+        btnOk = new javax.swing.JButton("Ok");
+        btnOk.addActionListener(a -> closeOk());
+        success(false);
 
         JPanel pan = new JPanel();
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(pan);
         pan.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(panImg, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(txtPath)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnBrowse))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(0, 164, Short.MAX_VALUE)
-                        .addComponent(btnOk)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnCancel)))
-                .addContainerGap())
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(panImg, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGroup(layout.createSequentialGroup()
+                                        .addComponent(txtPath)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(btnBrowse))
+                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                        .addGap(0, 164, Short.MAX_VALUE)
+                                        .addComponent(btnOk)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(btnCancel)))
+                        .addContainerGap())
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtPath, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnBrowse))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(panImg, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnCancel)
-                    .addComponent(btnOk))
-                .addContainerGap())
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(txtPath, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(btnBrowse))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(panImg, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(btnCancel)
+                                .addComponent(btnOk))
+                        .addContainerGap())
         );
         add(pan);
     }
 
-    public static SearchFilterDialog show(JFileChooser fc)
+    public static SearchFilterDialog show(JFileChooser fc, Consumer<FilterInterface> consumer)
     {
         if(dialog == null)
         {
-            dialog = new SearchFilterDialog(fc);
+            dialog = new SearchFilterDialog(fc, consumer);
         }
-        dialog.setVisible(true);
+        dialog.prepareShowing();
         return dialog;
     }
 
@@ -133,10 +136,12 @@ public class SearchFilterDialog extends JDialog
 
     private void showFilter()
     {
+        boolean b;
         FilterInterface filterInterface = cl.getSingleFilterInterface(txtPath.getText());
         if(filterInterface == null)
         {
             failFilter("This was no filter!!");
+            b = false;
         } else
         {
             try
@@ -144,22 +149,46 @@ public class SearchFilterDialog extends JDialog
                 img = filterInterface.processImage(TEST_IMAGE);
                 filterInterface.setPreview(new ImageIcon(img));
                 panImg.setImage(img);
+                filter_intern = filterInterface;
+                b = true;
             } catch(Throwable t)
             {
                 failFilter("Filter was not executeable");
+                b = false;
             }
         }
+        success(b);
     }
-    
-    private void failFilter(String msg){
-        
-            JOptionPane.showMessageDialog(this, msg);
-            txtPath.setText("");
-    }
-    
-    private static void setBufferedImage(BufferedImage imgToSet)
+
+    private void failFilter(String msg)
     {
-        imgToSet.getGraphics().drawImage(TEST_ICON.getImage(), 0, 0, null);
+        JOptionPane.showMessageDialog(this, msg);
+        filter = null;
+        txtPath.setText("");
+    }
+
+    private void success(boolean success)
+    {
+        btnOk.setEnabled(success);
+    }
+    
+    private void closeOk()
+    {
+        this.filter = filter_intern;
+        close();
+    }
+    
+    private void close()
+    {
+        this.dispose();
+    }
+
+    private void prepareShowing()
+    {
+        filter = null;
+        txtPath.setText("");
+        success(false);
+        setVisible(true);
     }
 
     private JButton btnOk;
