@@ -10,7 +10,6 @@ import imagefilter.helper.Tools;
 import imagefilter.model.Setting;
 import java.awt.image.BufferedImage;
 import javax.swing.ImageIcon;
-import javax.swing.JSlider;
 
 /**
  *
@@ -21,12 +20,18 @@ public class GaussianBlurFilter implements FilterInterface {
     // the one-dimensional blur filter is applied line by line
     // but to get the two-dimensional gaussian blur effect, the one-dimensional logic is applied two times
     // once horizontally and once vertically
+    
+    private final Setting[] settings;
+    
+    public GaussianBlurFilter() {
+        settings = new Setting[1];
+        settings[0] = new Setting("Radius", 5, 20, 10);
+    }
 
     @Override
     public BufferedImage processImage(BufferedImage image) {
-
         // ATTENTION: radius still needs to be set by the user
-        float radius = 10f;
+        float radius = settings[0].getCurValue();
         int width = image.getWidth();
         int height = image.getHeight();
         int[] srcPixels = new int[width * height];
@@ -152,6 +157,6 @@ public class GaussianBlurFilter implements FilterInterface {
 
     @Override
     public Setting[] getSettings() {
-        return null;
+        return settings;
     }
 }

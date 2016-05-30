@@ -18,18 +18,21 @@ import javax.swing.ImageIcon;
  */
 public class ChannelMixFilter implements FilterInterface
 {
+    private static final int RED = 0;
+    private static final int GREEN = 1;
+    private static final int BLUE = 2;
+    
 
     private final Setting[] settings;
     public ChannelMixFilter() {
         settings = new Setting[1];
-        SettingWithXOptions setting = new SettingWithXOptions("RGB", 0,2,1) {
+        settings[0] = new SettingWithXOptions("RGB", 0,2,0) {
             
             @Override
             public String[] getOptionNames() {
                 return new String[]{"R","G","B"};
             }
         };
-        settings[0] = setting;
     }
      
 
@@ -58,7 +61,17 @@ public class ChannelMixFilter implements FilterInterface
                 int g = rgb >> 8 & 0xff;
                 int b = rgb & 0xff;
                 
-                outPixels[yOffset + x] = (g/2 + b / 2) << 16 | g << 8 | b;
+                switch(settings[0].getCurValue())
+                {
+                    case RED:
+                        outPixels[yOffset + x] = (g/2 + b / 2) << 16 | g << 8 | b;
+                        break;
+                    case GREEN:
+                        outPixels[yOffset + x] = r << 16 | (r/2 + b/2) << 8 | b;
+                        break;
+                    case BLUE:
+                        outPixels[yOffset + x] = r << 16 | g << 8 | (r/2 + g/2);
+                }
             }
         }
         
