@@ -8,9 +8,9 @@ package imagefilter.filter;
 import imagefilter.helper.Constants;
 import imagefilter.helper.Tools;
 import imagefilter.model.Setting;
+import imagefilter.model.SettingWithXOptions;
 import java.awt.image.BufferedImage;
 import javax.swing.ImageIcon;
-import javax.swing.JSlider;
 
 /**
  *
@@ -46,13 +46,34 @@ public class DitherFilter implements FilterInterface
         {128, 128, 128},
         {255, 255, 255}
     };
+    
+    private final Setting[] settings;
+            
+    public DitherFilter()
+    {
+        settings = new Setting[1];
+        settings[0] = new SettingWithXOptions("Palette", 0, 2, 0) {
+            @Override
+            public String[] getOptionNames() {
+                return new String[] {"B/W","Gray", "Color"};
+            }
+        };
+    }
 
     @Override
     public BufferedImage processImage(BufferedImage image) {
 
         image = Tools.convertToStandardType(image);
-        // select color palette -> ATTENTION: user should be able to select the palette!!!
-        palette = paletteColor;
+        
+        // sets the adjusted color palette
+        switch(settings[0].getCurValue())
+        {
+            case 0: palette = paletteBlackWhite;
+                break;
+            case 1: palette = paletteGray;
+                break;
+            case 2: palette = paletteColor;
+        }
         
         int width = image.getWidth();
         int height = image.getHeight();
@@ -160,6 +181,6 @@ public class DitherFilter implements FilterInterface
 
     @Override
     public Setting[] getSettings() {
-        return null;
+        return settings;
     }
 }

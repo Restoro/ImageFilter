@@ -10,7 +10,6 @@ import imagefilter.helper.Tools;
 import imagefilter.model.Setting;
 import java.awt.image.BufferedImage;
 import javax.swing.ImageIcon;
-import javax.swing.JSlider;
 
 /**
  *
@@ -22,9 +21,14 @@ import javax.swing.JSlider;
 // https://github.com/axet/jhlabs/blob/master/src/main/java/com/jhlabs/image/WaterFilter.java
 public class WaterFilter implements FilterInterface {
 
-    private final float amplitude = 10;
-    private final float waveLength = 20;
-
+    private final Setting[] settings;
+    
+    public WaterFilter() {
+        settings = new Setting[2];
+        settings[0] = new Setting("Amplitude", 1, 50, 15);
+        settings[1] = new Setting("Wellenlänge", 10, 200, 100);
+    }
+    
     @Override
     public BufferedImage processImage(BufferedImage image) {
 
@@ -46,6 +50,9 @@ public class WaterFilter implements FilterInterface {
 
     public void waterFilter(int[] inPixels, int[] outPixels, int width, int height) {
 
+        float amplitude = settings[0].getCurValue();
+        float waveLength = settings[1].getCurValue();
+        
         int i = 0;
         int centreX = width / 2;
         int centreY = height / 2;
@@ -90,6 +97,6 @@ public class WaterFilter implements FilterInterface {
 
     @Override
     public Setting[] getSettings() {
-        return null;
+        return settings;
     }
 }
