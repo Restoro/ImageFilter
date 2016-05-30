@@ -16,15 +16,14 @@ import javax.swing.ImageIcon;
  *
  * @author Gerstberger
  */
-
 // In our DitherFilter we use the Floyd-Steinberg algorithm
 //
 // https://en.wikipedia.org/wiki/Floyd%E2%80%93Steinberg_dithering
 // http://www.tannerhelland.com/4660/dithering-eleven-algorithms-source-code/
-public class DitherFilter1 implements FilterInterface
-{
+public class DitherFilter1 implements FilterInterface {
+
     private int[][] palette = null;
-    
+
     private final int[][] paletteColor = {
         {0, 0, 0},
         {0, 0, 255},
@@ -40,43 +39,44 @@ public class DitherFilter1 implements FilterInterface
         {0, 0, 0},
         {255, 255, 255}
     };
-    
+
     private final int[][] paletteGray = {
         {0, 0, 0},
         {128, 128, 128},
         {255, 255, 255}
     };
-    
+
     private final Setting[] settings;
     private BufferedImage preview;
-            
-    public DitherFilter1()
-    {
+
+    public DitherFilter1() {
         settings = new Setting[1];
         settings[0] = new SettingWithXOptions("Palette", 0, 2, 0) {
             @Override
             public String[] getOptionNames() {
-                return new String[] {"B/W","Gray", "Color"};
+                return new String[]{"B/W", "Gray", "Color"};
             }
         };
     }
 
     @Override
     public BufferedImage processImage(BufferedImage image) {
-        
+
         // sets the adjusted color palette
-        switch(settings[0].getCurValue())
-        {
-            case 0: palette = paletteBlackWhite;
+        switch (settings[0].getCurValue()) {
+            case 0:
+                palette = paletteBlackWhite;
                 break;
-            case 1: palette = paletteGray;
+            case 1:
+                palette = paletteGray;
                 break;
-            case 2: palette = paletteColor;
+            case 2:
+                palette = paletteColor;
         }
-        
+
         BufferedImage proceedImage = new BufferedImage(image.getWidth(), image.getHeight(), Constants.IMAGE_STANDARD_TYPE);
         image = Tools.convertToStandardType(image);
-        
+
         int width = image.getWidth();
         int height = image.getHeight();
 
@@ -85,11 +85,9 @@ public class DitherFilter1 implements FilterInterface
 
         image.getRGB(0, 0, width, height, inPixels, 0, width);
 
-        for (int y = 0; y < height; y++)
-        {
+        for (int y = 0; y < height; y++) {
             int yOffset = y * width;
-            for (int x = 0; x < width; x++)
-            {
+            for (int x = 0; x < width; x++) {
                 // gets the right pixel with the yOffset, because of the one-dimensional array
                 int rgb = inPixels[yOffset + x];
                 // finds the closest color in the palette that suits best
@@ -106,10 +104,26 @@ public class DitherFilter1 implements FilterInterface
                 // 3 5 1
                 // these values were developed by floyd and steinberg
                 // Have a look at: http://www.tannerhelland.com/4660/dithering-eleven-algorithms-source-code/
-                if (x+1 < width)                    inPixels[yOffset +         x+1] = add(inPixels[yOffset +         x+1], mul(rgbErr, 7.0f / 16));
-                if (x-1 >= 0 && y+1 < height)       inPixels[yOffset + width + x-1] = add(inPixels[yOffset + width + x-1], mul(rgbErr, 3.0f / 16));
-                if (y+1 < height)                   inPixels[yOffset + width + x  ] = add(inPixels[yOffset + width + x  ], mul(rgbErr, 5.0f / 16));
-                if (x+1 < width && y+1 < height)    inPixels[yOffset + width + x+1] = add(inPixels[yOffset + width + x+1], mul(rgbErr, 1.0f / 16));
+                if (x + 1 < width) {
+                    int newRgb =  add(inPixels[yOffset + x + 1], mul(rgbErr, 7.0f / 16));
+                    inPixels[yOffset + x + 1] = newRgb;
+                    System.out.println(((newRgb>>16)&0xff) + " " + ((newRgb>>8)&0xff) + " "+ ((newRgb)&0xff));
+                }
+                if (x - 1 >= 0 && y + 1 < height) {
+                    int newRgb =  add(inPixels[yOffset + width + x - 1], mul(rgbErr, 3.0f / 16));
+                    inPixels[yOffset + width + x - 1] = newRgb;
+                    System.out.println(((newRgb>>16)&0xff) + " " + ((newRgb>>8)&0xff) + " "+ ((newRgb)&0xff));
+                }
+                if (y + 1 < height) {
+                    int newRgb =  add(inPixels[yOffset + width + x], mul(rgbErr, 5.0f / 16));
+                    inPixels[yOffset + width + x] = newRgb;
+                    System.out.println(((newRgb>>16)&0xff) + " " + ((newRgb>>8)&0xff) + " "+ ((newRgb)&0xff));
+                }
+                if (x + 1 < width && y + 1 < height) {
+                    int newRgb =  add(inPixels[yOffset + width + x + 1], mul(rgbErr, 1.0f / 16));
+                    inPixels[yOffset + width + x + 1] = newRgb;
+                    System.out.println(((newRgb>>16)&0xff) + " " + ((newRgb>>8)&0xff) + " "+ ((newRgb)&0xff));
+                }
             }
         }
         BufferedImage dest = new BufferedImage(width, height, Constants.IMAGE_STANDARD_TYPE);
@@ -127,16 +141,14 @@ public class DitherFilter1 implements FilterInterface
         int newRGB = 0;
 
         int min = Integer.MAX_VALUE;
-        for (int[] vals : palette)
-        {
+        for (int[] vals : palette) {
             int r = vals[0];
             int g = vals[1];
             int b = vals[2];
 
             // the color with the smallest difference suits best
             int diff = diff(rOrig, gOrig, bOrig, r, g, b);
-            if (diff < min)
-            {
+            if (diff < min) {
                 min = diff;
                 newRGB = r << 16 | g << 8 | b;
             }
@@ -152,7 +164,7 @@ public class DitherFilter1 implements FilterInterface
         int newR = (rgbOne >> 16 & 0xff) - (rgbTwo >> 16 & 0xff);
         int newG = (rgbOne >> 8 & 0xff) - (rgbTwo >> 8 & 0xff);
         int newB = (rgbOne & 0xff) - (rgbTwo & 0xff);
-        return new int[] {newR, newG, newB};
+        return new int[]{newR, newG, newB};
     }
 
     // adds one rgb value to another --> BoundaryCheck needed
@@ -168,7 +180,7 @@ public class DitherFilter1 implements FilterInterface
         int newR = (int) (rgb[0] * f);
         int newG = (int) (rgb[1] * f);
         int newB = (int) (rgb[2] * f);
-        return new int[] {newR, newG, newB};
+        return new int[]{newR, newG, newB};
     }
 
     @Override
@@ -177,8 +189,7 @@ public class DitherFilter1 implements FilterInterface
     }
 
     @Override
-    public void setPreview(BufferedImage preview)
-    {
+    public void setPreview(BufferedImage preview) {
         this.preview = preview;
     }
 
