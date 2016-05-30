@@ -13,6 +13,7 @@ import imagefilter.model.Model.FilterPair;
 import imagefilter.model.Setting;
 import imagefilter.model.SettingWithXOptions;
 import java.awt.BorderLayout;
+import java.awt.CheckboxMenuItem;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -26,6 +27,7 @@ import java.util.Hashtable;
 import javax.imageio.ImageIO;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -59,6 +61,7 @@ public class MainFrame extends JFrame {
     private JMenuItem saveDisplayAs;
     private JMenuItem saveLastFilterAs;
     private JMenuItem plugins;
+    private JCheckBoxMenuItem chkbToggleInListFilter;
     private MenuHandler handler;
     private JList filterList;
     private Model model;
@@ -229,6 +232,12 @@ public class MainFrame extends JFrame {
                 saveLastFilter.setEnabled(b);
                 saveLastFilterAs.setEnabled(b);
             }
+
+            @Override
+            public void applyingFiltersChangedPair(Collection<FilterPair> filters) {
+                filterCount = filters.size();
+                checkEnabled();
+            }
         });
         model.addDisplayImageChangedListener(filterPair
                 -> {
@@ -236,8 +245,8 @@ public class MainFrame extends JFrame {
                     saveDisplay.setEnabled(b);
                     saveDisplayAs.setEnabled(b);
                     settingsPanel.removeAll();
-                    settingsPanel.revalidate();
-                    if (filterPair!=null&&filterPair.filter != null) {
+                    settingsPanel.updateUI();
+                    if (filterPair.filter != null) {
                         updateSettings(filterPair.filter);
                     }
                 });
@@ -267,6 +276,9 @@ public class MainFrame extends JFrame {
                     changeSetting.setCurValue(sourceSlider.getValue());
                     model.setSetting();
                 }
+            } else if(e.getSource().equals(chkbToggleInListFilter))
+            {
+                model.setRemoveFilterIfAppliedInList(chkbToggleInListFilter.getState());
             }
         }
 

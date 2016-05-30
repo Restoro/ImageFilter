@@ -8,35 +8,45 @@ package imagefilter.filter;
 import imagefilter.helper.Constants;
 import imagefilter.helper.Tools;
 import imagefilter.model.Setting;
-import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
 import javax.swing.ImageIcon;
-import javax.swing.JSlider;
+
 
 /**
  *
- * @author Verena
+ * @author Hochrathner
  */
 public class HSBAdjustFilter implements FilterInterface {
+    
+    private final Setting[] settings;
+    
+    public HSBAdjustFilter() {
+        settings = new Setting[3];
+        settings[0] = (new Setting("Hue",0,200,50));
+        settings[1] = (new Setting("Saturation",0,200,50));
+        settings[2] = (new Setting("Brightness",0,200,50));
+    }
 
     @Override
     public BufferedImage processImage(BufferedImage image) {
 
         //parameter  
-        float hFactor = 0.7f;
-        float sFactor = 0.7f;
-        float bFactor = 1.3f;
+        float hFactor = settings[0].getCurValue()/100f;
+        float sFactor = settings[1].getCurValue()/100f;
+        float bFactor = settings[2].getCurValue()/100f;
 
         BufferedImage proceedImage = new BufferedImage(image.getWidth(), image.getHeight(), Constants.IMAGE_STANDARD_TYPE);
         image = Tools.convertToStandardType(image);
 
-        for (int x = 0; x < image.getWidth(); x++) {
-            for (int y = 0; y < image.getHeight(); y++) {
+         if (image.getRaster().getDataBuffer() instanceof DataBufferByte) {
+            byte[] pixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
+            byte[] outPixels = ((DataBufferByte) proceedImage.getRaster().getDataBuffer()).getData();
 
-                int rgb = image.getRGB(x, y);
-                int r = (rgb >> 16 & 0xFF);
-                int g = (rgb >> 8 & 0xFF);
-                int b = (rgb & 0xFF);
+            for (int pixel = 0; pixel < pixels.length; pixel += 3) {
+                int r = pixels[pixel + 2] & 0xFF;
+                int g = pixels[pixel + 1] & 0xFF;
+                int b = pixels[pixel] & 0xFF;
 
                 float[] hsb = getHSB(r / 255f, g / 255f, b / 255f);
                 float[] rgbNeu = getRGB(Math.max(0, Math.min(360, hsb[0] * hFactor)),
@@ -47,11 +57,13 @@ public class HSBAdjustFilter implements FilterInterface {
                 g = Math.round(rgbNeu[1] * 255);
                 b = Math.round(rgbNeu[2] * 255);
 
-                proceedImage.setRGB(x, y, r << 16 | g << 8 | b);
+                outPixels[pixel+2] = (byte) (r & 0xFF); 
+                outPixels[pixel+1] = (byte) (g & 0xFF);
+                outPixels[pixel] = (byte) (b & 0xFF);
             }
+            return proceedImage;
         }
-        return proceedImage;
-
+        return image;
     }
 
     @Override
@@ -63,7 +75,8 @@ public class HSBAdjustFilter implements FilterInterface {
     public String toString() {
         return "HSB Adjust";
     }
-
+    
+    //https://de.wikipedia.org/wiki/HSV-Farbraum
     private float[] getHSB(float r, float g, float b) {
         float hsb[] = new float[3];
         float min = Math.min(r, Math.min(g, b));
@@ -154,6 +167,6 @@ public class HSBAdjustFilter implements FilterInterface {
 
     @Override
     public Setting[] getSettings() {
-        return null;
+        return settings;
     }
 }

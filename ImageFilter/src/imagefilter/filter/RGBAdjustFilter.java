@@ -9,40 +9,54 @@ import imagefilter.helper.Constants;
 import imagefilter.helper.Tools;
 import imagefilter.model.Setting;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
 import javax.swing.ImageIcon;
 
 /**
  *
- * @author Verena
+ * @author Hochrathner
  */
 public class RGBAdjustFilter implements FilterInterface {
+    
+    private final Setting[] settings;
+    
+    public RGBAdjustFilter() {
+        settings = new Setting[3];
+        settings[0] = (new Setting("Red",0,200,50));
+        settings[1] = (new Setting("Green",0,200,50));
+        settings[2] = (new Setting("Blue",0,200,50));
+    }
 
     @Override
     public BufferedImage processImage(BufferedImage image) {
         //parameter  
-        float rFactor = 0.7f;
-        float gFactor = 0.7f;
-        float bFactor = 1.3f;
+        float rFactor = settings[0].getCurValue()/100f;
+        float gFactor = settings[1].getCurValue()/100f;
+        float bFactor = settings[2].getCurValue()/100f;
 
         BufferedImage proceedImage = new BufferedImage(image.getWidth(), image.getHeight(), Constants.IMAGE_STANDARD_TYPE);
         image = Tools.convertToStandardType(image);
 
-        for (int x = 0; x < image.getWidth(); x++) {
-            for (int y = 0; y < image.getHeight(); y++) {
+        if (image.getRaster().getDataBuffer() instanceof DataBufferByte) {
+            byte[] pixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
+            byte[] outPixels = ((DataBufferByte) proceedImage.getRaster().getDataBuffer()).getData();
 
-                int rgb = image.getRGB(x, y);
-                int r = (rgb >> 16 & 0xFF);
-                int g = (rgb >> 8 & 0xFF);
-                int b = (rgb & 0xFF);
+            for (int pixel = 0; pixel < pixels.length; pixel += 3) {
+                int r = pixels[pixel + 2] & 0xFF;
+                int g = pixels[pixel + 1] & 0xFF;
+                int b = pixels[pixel] & 0xFF;
 
-                r = Math.max(0, Math.min(255, Math.round(r * rFactor)));
-                g = Math.max(0, Math.min(255, Math.round(g * gFactor)));
-                b = Math.max(0, Math.min(255, Math.round(b * bFactor)));
+                r = Tools.boundaryCheck(r * rFactor);
+                g = Tools.boundaryCheck(g * gFactor);
+                b = Tools.boundaryCheck(b * bFactor);
 
-                proceedImage.setRGB(x, y, r << 16 | g << 8 | b);
+                outPixels[pixel+2] = (byte) (r & 0xFF); 
+                outPixels[pixel+1] = (byte) (g & 0xFF);
+                outPixels[pixel] = (byte) (b & 0xFF);
             }
+            return proceedImage;
         }
-        return proceedImage;
+        return image;
     }
 
     @Override
@@ -57,7 +71,7 @@ public class RGBAdjustFilter implements FilterInterface {
 
     @Override
     public Setting[] getSettings() {
-        return null;
+        return settings;
     }
 
 }

@@ -34,6 +34,7 @@ public class MirrorFilter implements FilterInterface {
 
         if (image.getRaster().getDataBuffer() instanceof DataBufferByte) {
             byte[] pixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
+            byte[] outPixels = ((DataBufferByte) proceedImage.getRaster().getDataBuffer()).getData();
 
             //Subsample Image
             
@@ -45,14 +46,21 @@ public class MirrorFilter implements FilterInterface {
                     int r = pixels[index + 2] & 0xFF;
 
                     //Set Subsampled Pixel
-                    proceedImage.setRGB((colX / rate) + offset, rowY / rate, ((r) << 16 | (g) << 8 | (b)));
+                    index = (((colX / rate)+offset)+(rowY/rate)*proceedImage.getWidth())*3;
+                    outPixels[index] = (byte) (b&0xff);
+                    outPixels[index+1] = (byte) (g&0xff);
+                    outPixels[index+2] = (byte) (r&0xff);
 
                     //Set Subsampled Mirror Pixel
                     float mirrorDarkness = settings[0].getCurValue()/100f;
                     r *= mirrorDarkness;
                     g *= mirrorDarkness;
                     b *= mirrorDarkness;
-                    proceedImage.setRGB((colX / rate) + offset, image.getHeight() - 1 - (rowY / rate), ((r) << 16 | (g) << 8 | (b)));
+                    
+                    index = (((colX / rate)+offset)+(image.getHeight() - 1 - (rowY / rate))*proceedImage.getWidth())*3;
+                    outPixels[index] = (byte) (b&0xff);
+                    outPixels[index+1] = (byte) (g&0xff);
+                    outPixels[index+2] = (byte) (r&0xff);
                 }
             }
             return proceedImage;
