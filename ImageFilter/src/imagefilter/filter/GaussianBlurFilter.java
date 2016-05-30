@@ -9,6 +9,7 @@ import imagefilter.helper.Constants;
 import imagefilter.helper.Tools;
 import imagefilter.model.Setting;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
 import javax.swing.ImageIcon;
 
 /**
@@ -20,10 +21,10 @@ public class GaussianBlurFilter implements FilterInterface {
     // the one-dimensional blur filter is applied line by line
     // but to get the two-dimensional gaussian blur effect, the one-dimensional logic is applied two times
     // once horizontally and once vertically
-    
+
     private final Setting[] settings;
     private BufferedImage preview;
-    
+
     public GaussianBlurFilter() {
         settings = new Setting[1];
         settings[0] = new Setting("Radius", 5, 20, 10);
@@ -31,34 +32,34 @@ public class GaussianBlurFilter implements FilterInterface {
 
     @Override
     public BufferedImage processImage(BufferedImage image) {
-        // ATTENTION: radius still needs to be set by the user
+
         float radius = settings[0].getCurValue();
         int width = image.getWidth();
         int height = image.getHeight();
-        int[] srcPixels = new int[width * height];
-        int[] destPixels = new int[width * height];
 
         float[] matrix = createMatrix(radius);
 
+        BufferedImage proceedImage = new BufferedImage(width, height, Constants.IMAGE_STANDARD_TYPE);
         image = Tools.convertToStandardType(image);
-        // saves the pixels of the image in a one-dimensional array
-        image.getRGB(0, 0, width, height, srcPixels, 0, width);
 
-        // first apply to convolve Pixels horizontally
-        convolve(matrix, srcPixels, destPixels, width, height);
-        // second apply to convole Pixels vertically
-        convolve(matrix, destPixels, srcPixels, height, width);
+        if (image.getRaster().getDataBuffer() instanceof DataBufferByte) {
+            byte[] inPixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
+            byte[] bufferPixels = new byte[inPixels.length];
+            byte[] outPixels = ((DataBufferByte) proceedImage.getRaster().getDataBuffer()).getData();
 
-        BufferedImage img = new BufferedImage(width, height, Constants.IMAGE_STANDARD_TYPE);
-
-        // sets the convolved Pixels (now again in the srcPixels array, becuase of twice used) to the image
-        img.setRGB(0, 0, width, height, srcPixels, 0, width);
-
-        return img;
+            // first apply to convolve Pixels horizontally
+            convolve(matrix, inPixels, bufferPixels, width, height);
+            // second apply to convole Pixels vertically
+            convolve(matrix, bufferPixels, outPixels, height, width);
+            
+            return proceedImage;
+        } else {
+            return image;
+        }
     }
 
     // the matrix values are applied to every pixel
-    private void convolve(float[] matrix, int[] srcPixels, int[] destPixels, int width, int height) {
+    private void convolve(float[] matrix, byte[] srcPixels, byte[] destPixels, int width, int height) {
         int halfCol = matrix.length / 2;
 
         for (int y = 0; y < height; y++) {
@@ -88,22 +89,25 @@ public class GaussianBlurFilter implements FilterInterface {
                         }
                         // the yOffset + ix results in the right position of the pixel in the one-dimensional image array
                         // then the rgb value is retrieved from this pixel
-                        int rgb = srcPixels[yOffset + ix];
+                        int b = srcPixels[(yOffset + ix) * 3] & 0xFF;
+                        int g = srcPixels[(yOffset + ix) * 3 + 1] & 0xFF;
+                        int r = srcPixels[(yOffset + ix) * 3 + 2] & 0xFF;
                         // now each r,g,b value is multiplied with the matrix value and added to the sum of sumR,sumB,sumG
-                        sumR += f * ((rgb >> 16) & 0xff);
-                        sumG += f * ((rgb >> 8) & 0xff);
-                        sumB += f * (rgb & 0xff);
+                        sumR += f * r;
+                        sumG += f * g;
+                        sumB += f * b;
                     }
                 }
-                // we do not use the alpha value
-                int a = 0xff;
                 // some of the r,g,b values may now be greater or less than the boundaries, so we need to check them
                 int r = (int) Tools.checkBoundaries((int) (sumR + 0.5), 0, 255);
                 int g = (int) Tools.checkBoundaries((int) (sumG + 0.5), 0, 255);
                 int b = (int) Tools.checkBoundaries((int) (sumB + 0.5), 0, 255);
 
                 // then the rgb values are merged and set to the destination value
-                destPixels[i] = (a << 24) | (r << 16) | (g << 8) | b;
+                destPixels[i * 3    ] = (byte) b;
+                destPixels[i * 3 + 1] = (byte) g;
+                destPixels[i * 3 + 2] = (byte) r;
+
                 i += height;
             }
         }
@@ -152,8 +156,7 @@ public class GaussianBlurFilter implements FilterInterface {
     }
 
     @Override
-    public void setPreview(BufferedImage preview)
-    {
+    public void setPreview(BufferedImage preview) {
         this.preview = preview;
     }
 

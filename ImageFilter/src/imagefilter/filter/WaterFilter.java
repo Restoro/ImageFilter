@@ -9,6 +9,7 @@ import imagefilter.helper.Constants;
 import imagefilter.helper.Tools;
 import imagefilter.model.Setting;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
 import javax.swing.ImageIcon;
 
 /**
@@ -35,21 +36,22 @@ public class WaterFilter implements FilterInterface {
 
         int width = image.getWidth();
         int height = image.getHeight();
-        int[] inPixels = new int[width * height];
-        int[] outPixels = new int[width * height];
-
+        
+        BufferedImage proceedImage = new BufferedImage(width, height, Constants.IMAGE_STANDARD_TYPE);
         image = Tools.convertToStandardType(image);
-        image.getRGB(0, 0, width, height, inPixels, 0, width);
 
-        waterFilter(inPixels, outPixels, width, height);
+        if(image.getRaster().getDataBuffer() instanceof DataBufferByte)
+        {
+            byte[] inPixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
+            byte[] outPixels = ((DataBufferByte) proceedImage.getRaster().getDataBuffer()).getData();
+            
+            waterFilter(inPixels, outPixels, width, height);
+        }
 
-        BufferedImage dest = new BufferedImage(width, height, Constants.IMAGE_STANDARD_TYPE);
-        dest.setRGB(0, 0, width, height, outPixels, 0, width);
-
-        return dest;
+        return proceedImage;
     }
 
-    public void waterFilter(int[] inPixels, int[] outPixels, int width, int height) {
+    public void waterFilter(byte[] inPixels, byte[] outPixels, int width, int height) {
 
         float amplitude = settings[0].getCurValue();
         float waveLength = settings[1].getCurValue();
@@ -78,8 +80,9 @@ public class WaterFilter implements FilterInterface {
                 int ny = (int) Tools.checkBoundaries((int) (newY + 0.5f), 0, height - 1);
 
                 // get the pixel of the calculated position and set the rgb value to the current position
-                int rgb = inPixels[ny * width + nx];
-                outPixels[i] = rgb;
+                outPixels[i * 3] = inPixels[(ny * width + nx) * 3];
+                outPixels[i * 3 + 1] = inPixels[(ny * width + nx) * 3 + 1];
+                outPixels[i * 3 + 2] = inPixels[(ny * width + nx) * 3 + 2];
 
                 i++;
             }

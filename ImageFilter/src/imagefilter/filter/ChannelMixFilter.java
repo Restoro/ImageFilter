@@ -10,76 +10,69 @@ import imagefilter.helper.Tools;
 import imagefilter.model.Setting;
 import imagefilter.model.SettingWithXOptions;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
 import javax.swing.ImageIcon;
 
 /**
  *
  * @author Gerstberger
  */
-public class ChannelMixFilter implements FilterInterface
-{
+public class ChannelMixFilter implements FilterInterface {
+
     private static final int RED = 0;
     private static final int GREEN = 1;
     private static final int BLUE = 2;
-    
 
     private final Setting[] settings;
     private BufferedImage preview;
+
     public ChannelMixFilter() {
         settings = new Setting[1];
-        settings[0] = new SettingWithXOptions("RGB", 0,2,0) {
-            
+        settings[0] = new SettingWithXOptions("RGB", 0, 2, 0) {
+
             @Override
             public String[] getOptionNames() {
-                return new String[]{"R","G","B"};
+                return new String[]{"R", "G", "B"};
             }
         };
     }
-     
 
     @Override
     public BufferedImage processImage(BufferedImage image) {
-        
-        // needs to be adjustable
-        // looks nice for pink images now ;)
-        
-        int width = image.getWidth();
-        int height = image.getHeight();
-        int[] inPixels = new int[width * height];
-        int[] outPixels = new int[width * height];
+
+        BufferedImage proceedImage = new BufferedImage(image.getWidth(), image.getHeight(), Constants.IMAGE_STANDARD_TYPE);
         image = Tools.convertToStandardType(image);
-        
-        image.getRGB(0, 0, width, height, inPixels, 0, width);
-        
-        for(int y = 0; y < height; y ++)
-        {
-            int yOffset = y * width;
-            for(int x = 0; x < width; x ++)
-            {
-                int rgb = inPixels[yOffset + x];
-                
-                int r = rgb >> 16 & 0xff;
-                int g = rgb >> 8 & 0xff;
-                int b = rgb & 0xff;
-                
-                switch(settings[0].getCurValue())
-                {
+
+        if (image.getRaster().getDataBuffer() instanceof DataBufferByte) {
+            byte[] inPixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
+            byte[] outPixels = ((DataBufferByte) proceedImage.getRaster().getDataBuffer()).getData();
+
+            for (int i = 0; i < inPixels.length; i += 3) {
+                int b = inPixels[i] & 0xff;
+                int g = inPixels[i + 1] & 0xff;
+                int r = inPixels[i + 2] & 0xff;
+
+                switch (settings[0].getCurValue()) {
                     case RED:
-                        outPixels[yOffset + x] = (g/2 + b / 2) << 16 | g << 8 | b;
+                        outPixels[i] = (byte)b;
+                        outPixels[i + 1] = (byte) g;
+                        outPixels[i + 2] = (byte) (g / 2 + b / 2);
                         break;
                     case GREEN:
-                        outPixels[yOffset + x] = r << 16 | (r/2 + b/2) << 8 | b;
+                        outPixels[i] = (byte)b;
+                        outPixels[i + 1] = (byte) (r / 2 + b / 2);
+                        outPixels[i + 2] = (byte) r;
                         break;
                     case BLUE:
-                        outPixels[yOffset + x] = r << 16 | g << 8 | (r/2 + g/2);
+                        outPixels[i] = (byte)(r / 2 + g / 2);
+                        outPixels[i + 1] = (byte) g;
+                        outPixels[i + 2] = (byte) r;
                 }
             }
+            return proceedImage;
+        } else {
+            return image;
         }
-        
-        BufferedImage dest = new BufferedImage(width, height, Constants.IMAGE_STANDARD_TYPE);
-        dest.setRGB(0, 0, width, height, outPixels, 0, width);
-        
-        return dest;
     }
 
     @Override
@@ -88,8 +81,7 @@ public class ChannelMixFilter implements FilterInterface
     }
 
     @Override
-    public void setPreview(BufferedImage preview)
-    {
+    public void setPreview(BufferedImage preview) {
         this.preview = preview;
     }
 
