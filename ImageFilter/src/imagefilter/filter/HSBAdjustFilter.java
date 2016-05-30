@@ -20,6 +20,7 @@ import javax.swing.ImageIcon;
 public class HSBAdjustFilter implements FilterInterface {
     
     private final Setting[] settings;
+    private BufferedImage preview;
     
     public HSBAdjustFilter() {
         settings = new Setting[3];
@@ -69,6 +70,12 @@ public class HSBAdjustFilter implements FilterInterface {
     @Override
     public ImageIcon getPreview() {
         return new ImageIcon(Tools.getResource("scrollright.png"));
+    }
+
+    @Override
+    public void setPreview(BufferedImage preview)
+    {
+        this.preview = preview;
     }
 
     @Override

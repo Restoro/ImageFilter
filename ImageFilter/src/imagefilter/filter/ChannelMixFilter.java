@@ -24,6 +24,7 @@ public class ChannelMixFilter implements FilterInterface
     
 
     private final Setting[] settings;
+    private BufferedImage preview;
     public ChannelMixFilter() {
         settings = new Setting[1];
         settings[0] = new SettingWithXOptions("RGB", 0,2,0) {
@@ -84,6 +85,12 @@ public class ChannelMixFilter implements FilterInterface
     @Override
     public ImageIcon getPreview() {
         return new ImageIcon(Tools.getResource("scrollright.png"));
+    }
+
+    @Override
+    public void setPreview(BufferedImage preview)
+    {
+        this.preview = preview;
     }
 
     @Override

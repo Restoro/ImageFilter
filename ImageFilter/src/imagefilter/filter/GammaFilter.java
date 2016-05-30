@@ -19,6 +19,7 @@ import javax.swing.ImageIcon;
 public class GammaFilter implements FilterInterface{
 
     private final Setting[] settings;
+    private BufferedImage preview;
     
     public GammaFilter() {
         settings = new Setting[1];
@@ -60,6 +61,12 @@ public class GammaFilter implements FilterInterface{
     @Override
     public ImageIcon getPreview() {
         return new ImageIcon(Tools.getResource("scrollright.png"));
+    }
+
+    @Override
+    public void setPreview(BufferedImage preview)
+    {
+        this.preview = preview;
     }
 
     @Override

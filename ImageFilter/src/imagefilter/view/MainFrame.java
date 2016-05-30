@@ -52,9 +52,6 @@ public class MainFrame extends JFrame {
     private File file;
     private int filterCount;
 
-    private JMenuBar menuBar;
-    private JMenu menu;
-    private JFrame mainFrame;
     private JScrollPane scrpSettings;
     private ImagePanel imagePanel;
     private JMenuItem openFile;
@@ -63,6 +60,7 @@ public class MainFrame extends JFrame {
     private JMenuItem saveLastFilter;
     private JMenuItem saveDisplayAs;
     private JMenuItem saveLastFilterAs;
+    private JMenuItem plugins;
     private JCheckBoxMenuItem chkbToggleInListFilter;
     private MenuHandler handler;
     private JList filterList;
@@ -97,8 +95,6 @@ public class MainFrame extends JFrame {
 
         setupFilterList();
         setupSettingsList();
-
-        mainFrame = this;
     }
 
     private void setupSettingsList() {
@@ -135,8 +131,8 @@ public class MainFrame extends JFrame {
                     Tools.setTickSpacingOfJSlider(slider, 1);
                 } else {
 
-                    labelTable.put(new Integer(setting.getMinValue()), new JLabel(String.valueOf(setting.getMinValue())));
-                    labelTable.put(new Integer(setting.getMaxValue()), new JLabel(String.valueOf(setting.getMaxValue())));
+                    labelTable.put(setting.getMinValue(), new JLabel(String.valueOf(setting.getMinValue())));
+                    labelTable.put(setting.getMaxValue(), new JLabel(String.valueOf(setting.getMaxValue())));
                     Tools.setTickSpacingOfJSlider(slider, (setting.getMaxValue() - setting.getMinValue()) / 4);
 
                 }
@@ -159,46 +155,45 @@ public class MainFrame extends JFrame {
     }
 
     private void setupMenu() {
-        menuBar = new JMenuBar();
+        JMenuBar menuBar = new JMenuBar();
 
-        menu = new JMenu("File");
+        JMenu menuFile = new JMenu("File");
         openFile = new JMenuItem("Open File");
         openFile.addActionListener(handler);
-        menu.add(openFile);
+        menuFile.add(openFile);
 
         reset = new JMenuItem("Reset Image");
         reset.addActionListener(handler);
-        menu.add(reset);
+        menuFile.add(reset);
 
         saveDisplay = new JMenuItem("Save Displayed Image");
         saveDisplay.setEnabled(false);
         saveDisplay.addActionListener(handler);
-        menu.add(saveDisplay);
+        menuFile.add(saveDisplay);
 
         saveLastFilter = new JMenuItem("Save Last Filtered Image");
         saveLastFilter.setEnabled(false);
         saveLastFilter.addActionListener(handler);
-        menu.add(saveLastFilter);
+        menuFile.add(saveLastFilter);
 
         saveDisplayAs = new JMenuItem("Save Displayed Image As");
         saveDisplayAs.setEnabled(false);
         saveDisplayAs.addActionListener(handler);
-        menu.add(saveDisplayAs);
+        menuFile.add(saveDisplayAs);
 
         saveLastFilterAs = new JMenuItem("Save Last Filtered Image As");
         saveLastFilterAs.setEnabled(false);
         saveLastFilterAs.addActionListener(handler);
-        menu.add(saveLastFilterAs);
-
-        menuBar.add(menu);
+        menuFile.add(saveLastFilterAs);
         
-        JMenu menuSettings = new JMenu("Settings");
-        chkbToggleInListFilter = new JCheckBoxMenuItem("Remove Filter");
-        chkbToggleInListFilter.setToolTipText("Removes Filter if applying Filter is executed on specific Filter");
-        chkbToggleInListFilter.addChangeListener(new SettingsChangedHandler());
-        chkbToggleInListFilter.setState(true);
-        menuSettings.add(chkbToggleInListFilter);
-        menuBar.add(menuSettings);
+        JMenu menuExtra = new JMenu("Extras");
+        plugins = new JMenuItem("Plugins");
+        plugins.addActionListener(handler);
+        menuExtra.add(plugins);
+
+        menuBar.add(menuFile);
+        menuBar.add(menuExtra);
+
         this.setJMenuBar(menuBar);
     }
 
@@ -322,6 +317,9 @@ public class MainFrame extends JFrame {
                 saveAs(model.getDisplayImage().image);
             } else if (e.getSource() == saveLastFilterAs) {
                 saveAs(model.getCurrentImage());
+            } else if(e.getSource() == plugins)
+            {
+                new PluginsDialog(Paths.get("C:\\")).setVisible(true);
             }
         }
 
@@ -346,7 +344,6 @@ public class MainFrame extends JFrame {
                 ImageIO.write(image, getFileExtension(file), file);
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(MainFrame.this, "Error while saving...operation canceled");
-                ex.printStackTrace();
             }
         }
 
