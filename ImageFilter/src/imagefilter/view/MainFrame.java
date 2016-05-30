@@ -14,10 +14,12 @@ import imagefilter.model.Setting;
 import imagefilter.model.SettingWithXOptions;
 import java.awt.BorderLayout;
 import java.awt.CheckboxMenuItem;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -37,8 +39,10 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
+import javax.swing.JToolBar;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -114,9 +118,12 @@ public class MainFrame extends JFrame {
         if (filter.getSettings() != null) {
             for (int j = 0; j < filter.getSettings().length; j++) {
                 Setting setting = filter.getSettings()[j];
-                settingsPanel.add(Box.createRigidArea(new Dimension(200, 10)));
+                Box b = Box.createVerticalBox();
+                b.setPreferredSize(new Dimension(150, 0));
+                b.add(Box.createRigidArea(new Dimension(0, 10)));
                 JLabel name = new JLabel(setting.getName());
-                settingsPanel.add(name);
+                name.setAlignmentX(Component.CENTER_ALIGNMENT);
+                b.add(name);
 
                 JSlider slider = Tools.getJSlider(setting.getMinValue(), setting.getMaxValue(), setting.getCurValue());
                 slider.setName(j + "");
@@ -137,7 +144,8 @@ public class MainFrame extends JFrame {
 
                 }
                 slider.setLabelTable(labelTable);
-                settingsPanel.add(slider);
+                b.add(slider);
+                settingsPanel.add(b);
             }
         }
         settingsPanel.revalidate();
@@ -166,6 +174,8 @@ public class MainFrame extends JFrame {
         reset.addActionListener(handler);
         menuFile.add(reset);
 
+        menuFile.addSeparator();
+        
         saveDisplay = new JMenuItem("Save Displayed Image");
         saveDisplay.setEnabled(false);
         saveDisplay.addActionListener(handler);
@@ -191,6 +201,13 @@ public class MainFrame extends JFrame {
         plugins.addActionListener(handler);
         menuExtra.add(plugins);
 
+        menuExtra.addSeparator();
+        
+        chkbToggleInListFilter = new JCheckBoxMenuItem("Remove Filter");
+        chkbToggleInListFilter.addChangeListener(new SettingsChangedHandler());
+        chkbToggleInListFilter.setState(true);
+        menuExtra.add(chkbToggleInListFilter);
+        
         menuBar.add(menuFile);
         menuBar.add(menuExtra);
 
