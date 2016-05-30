@@ -22,6 +22,7 @@ import javax.swing.ImageIcon;
 public class WaterFilter implements FilterInterface {
 
     private final Setting[] settings;
+    private BufferedImage preview;
     
     public WaterFilter() {
         settings = new Setting[2];
@@ -88,6 +89,12 @@ public class WaterFilter implements FilterInterface {
     @Override
     public ImageIcon getPreview() {
         return new ImageIcon(Tools.getResource("scrollright.png"));
+    }
+
+    @Override
+    public void setPreview(BufferedImage preview)
+    {
+        this.preview = preview;
     }
 
     @Override

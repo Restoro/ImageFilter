@@ -17,6 +17,7 @@ import javax.swing.ImageIcon;
  * @author Hochrathner
  */
 public class GrayFilter implements FilterInterface {
+    private BufferedImage preview;
 
     @Override
     public BufferedImage processImage(BufferedImage image) {
@@ -50,6 +51,12 @@ public class GrayFilter implements FilterInterface {
     @Override
     public ImageIcon getPreview() {
         return new ImageIcon(Tools.getResource("scrollright.png"));
+    }
+
+    @Override
+    public void setPreview(BufferedImage preview)
+    {
+        this.preview = preview;
     }
 
     @Override
