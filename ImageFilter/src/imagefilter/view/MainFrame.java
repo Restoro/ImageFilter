@@ -39,8 +39,10 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
+import javax.swing.JToolBar;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -172,6 +174,8 @@ public class MainFrame extends JFrame {
         reset.addActionListener(handler);
         menuFile.add(reset);
 
+        menuFile.addSeparator();
+        
         saveDisplay = new JMenuItem("Save Displayed Image");
         saveDisplay.setEnabled(false);
         saveDisplay.addActionListener(handler);
@@ -197,6 +201,13 @@ public class MainFrame extends JFrame {
         plugins.addActionListener(handler);
         menuExtra.add(plugins);
 
+        menuExtra.addSeparator();
+        
+        chkbToggleInListFilter = new JCheckBoxMenuItem("Remove Filter");
+        chkbToggleInListFilter.addChangeListener(new SettingsChangedHandler());
+        chkbToggleInListFilter.setState(true);
+        menuExtra.add(chkbToggleInListFilter);
+        
         menuBar.add(menuFile);
         menuBar.add(menuExtra);
 
