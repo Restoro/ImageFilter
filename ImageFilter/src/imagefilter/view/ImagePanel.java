@@ -25,11 +25,14 @@ public class ImagePanel extends JPanel
     {
         this.image = image;
         this.model = model;
-        model.addDisplayImageChangedListener(filterPair
-                -> 
-                {
-                    setImage(filterPair.image);
-        });
+        if(model != null)
+        {
+            model.addDisplayImageChangedListener(filterPair
+                    -> 
+                    {
+                        setImage(filterPair.image);
+            });
+        }
     }
 
     public ImagePanel(Model model)

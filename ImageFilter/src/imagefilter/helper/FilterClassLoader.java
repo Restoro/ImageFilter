@@ -6,11 +6,10 @@
 package imagefilter.helper;
 
 import imagefilter.filter.FilterInterface;
-import imagefilter.view.PluginsDialog;
+import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -20,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 
 public class FilterClassLoader extends ClassLoader
 {
@@ -82,15 +82,28 @@ public class FilterClassLoader extends ClassLoader
         Path imgs = pluginDirectory.resolve("img");
         try
         {
-            Files.walk(classes, 0)
+            Files.walk(classes, 1)
                     .filter(p -> !Files.isDirectory(p) && p.toString().endsWith(".class"))
-                    .forEach(p -> classPathes.put(nameWithoutExtension(classes.relativize(p).toString()), p));
-            Files.walk(imgs, 0)
+                    .forEach(p
+                            -> 
+                            {
+                                String path = classes.relativize(p).toString();
+                                String nas = nameWithoutExtension(path);
+                                classPathes.put(nameWithoutExtension(classes.relativize(p).toString()), p);
+                    });
+            Files.walk(imgs, 1)
                     .filter(p -> !Files.isDirectory(p) && isJPGorPNG(p.toString()))
-                    .forEach(p -> imgPathes.put(nameWithoutExtension(classes.relativize(p).toString()), p));
+                    .forEach(p
+                            -> 
+                            {
+
+                                String path = imgs.relativize(p).toString();
+                                String nas = nameWithoutExtension(path);
+                                imgPathes.put(nameWithoutExtension(imgs.relativize(p).toString()), p);
+                    });
         } catch(IOException ex)
         {
-            Logger.getLogger(PluginsDialog.class.getName()).log(Level.SEVERE, null, ex);
+            //Logger.getLogger(PluginsDialog.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         classPathes.forEach((s, p)
@@ -106,6 +119,7 @@ public class FilterClassLoader extends ClassLoader
                             if(FilterInterface.class.isAssignableFrom(c) && !FilterInterface.class.equals(c))
                             {
                                 FilterInterface filter = (FilterInterface) c.newInstance();
+                                filter.setPreview(getPreview(img));
                                 filters.add(filter);
                             }
                         } catch(IOException | InstantiationException | IllegalAccessException ex)
@@ -115,6 +129,25 @@ public class FilterClassLoader extends ClassLoader
                     }
         });
         return filters;
+    }
+
+    public FilterInterface getSingleFilterInterface(String path)
+    {
+        ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
+        byte[] buffer = new byte[1024];
+
+        try
+        {
+            readFile(Paths.get(path), out, buffer);
+            Class c = define(out.toByteArray(), 0, out.size());
+            if(FilterInterface.class.isAssignableFrom(c) && !FilterInterface.class.equals(c))
+            {
+                return (FilterInterface) c.newInstance();
+            }
+        } catch(Throwable t)
+        {
+        }
+        return null;
     }
 
     public List<FilterInterface> getAllFilters()
@@ -167,5 +200,10 @@ public class FilterClassLoader extends ClassLoader
             }
         }
         return false;
+    }
+
+    private BufferedImage getPreview(Path img) throws IOException
+    {
+        return ImageIO.read(img.toFile());
     }
 }

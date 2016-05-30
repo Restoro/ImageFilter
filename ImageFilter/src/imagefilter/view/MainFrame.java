@@ -336,7 +336,7 @@ public class MainFrame extends JFrame {
                 saveAs(model.getCurrentImage());
             } else if(e.getSource() == plugins)
             {
-                new PluginsDialog(Paths.get("C:\\")).setVisible(true);
+                new PluginsDialog().setVisible(true);
             }
         }
 

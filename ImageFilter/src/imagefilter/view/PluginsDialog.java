@@ -1,16 +1,11 @@
 package imagefilter.view;
 
 import imagefilter.filter.FilterInterface;
+import imagefilter.helper.FilterClassLoader;
+import imagefilter.helper.Tools;
 import java.awt.event.ActionEvent;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.nio.file.Paths;
 import javax.swing.DefaultListModel;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
@@ -21,7 +16,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle;
-import javax.swing.ListModel;
 
 /**
  *
@@ -30,11 +24,11 @@ import javax.swing.ListModel;
 public class PluginsDialog extends JDialog
 {
     private Path pluginDirectory;
-    private ListModel<FilterInterface> model;
+    private DefaultListModel<FilterInterface> model;
 
-    public PluginsDialog(Path pluginDirectory)
+    public PluginsDialog()
     {
-        this.pluginDirectory = pluginDirectory;
+        this.pluginDirectory = Paths.get(Tools.getProperty("pluginDirectory"));
         this.model = new DefaultListModel<>();
         init();
         initPlugins();
@@ -63,6 +57,7 @@ public class PluginsDialog extends JDialog
 
         JScrollPane scrp = new JScrollPane();
         scrp.setViewportView(lstFilter);
+        lstFilter.setCellRenderer(new PluginsListRenderer());
 
         JPanel pan = new JPanel();
         GroupLayout layout = new GroupLayout(pan);
@@ -114,7 +109,11 @@ public class PluginsDialog extends JDialog
 
     private void initPlugins()
     {
-
+        FilterClassLoader cl = new FilterClassLoader(pluginDirectory);
+        for(FilterInterface filter : cl.getPluginFilters())
+        {
+            model.addElement(filter);
+        }
     }
 
     public void setPluginDirectory(Path pluginDirectory)
@@ -126,7 +125,7 @@ public class PluginsDialog extends JDialog
     {
         if(a.getSource() == btnAdd)
         {
-
+            SearchFilterDialog.show(null);
         } else if(a.getSource() == btnRemove)
         {
 
