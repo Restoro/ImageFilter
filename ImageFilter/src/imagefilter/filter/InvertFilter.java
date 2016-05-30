@@ -18,7 +18,7 @@ import javax.swing.ImageIcon;
  */
 public class InvertFilter implements FilterInterface {
 
-    private BufferedImage preview;
+    private ImageIcon preview;
     @Override
     public BufferedImage processImage(BufferedImage image) {
 
@@ -54,7 +54,7 @@ public class InvertFilter implements FilterInterface {
     }
 
     @Override
-    public void setPreview(BufferedImage preview)
+    public void setPreview(ImageIcon preview)
     {
         this.preview = preview;
     }

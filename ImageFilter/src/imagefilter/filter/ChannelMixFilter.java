@@ -24,7 +24,7 @@ public class ChannelMixFilter implements FilterInterface {
     private static final int BLUE = 2;
 
     private final Setting[] settings;
-    private BufferedImage preview;
+    private ImageIcon preview;
 
     public ChannelMixFilter() {
         settings = new Setting[1];
@@ -81,7 +81,7 @@ public class ChannelMixFilter implements FilterInterface {
     }
 
     @Override
-    public void setPreview(BufferedImage preview) {
+    public void setPreview(ImageIcon preview) {
         this.preview = preview;
     }
 

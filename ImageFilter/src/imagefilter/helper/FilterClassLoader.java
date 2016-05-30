@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 
 public class FilterClassLoader extends ClassLoader
 {
@@ -202,8 +203,8 @@ public class FilterClassLoader extends ClassLoader
         return false;
     }
 
-    private BufferedImage getPreview(Path img) throws IOException
+    private ImageIcon getPreview(Path img) throws IOException
     {
-        return ImageIO.read(img.toFile());
+        return new ImageIcon(ImageIO.read(img.toFile()));
     }
 }

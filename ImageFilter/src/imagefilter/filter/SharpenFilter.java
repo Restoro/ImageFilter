@@ -17,7 +17,7 @@ import javax.swing.ImageIcon;
  */
 public class SharpenFilter implements FilterInterface {
 
-    private BufferedImage preview;
+    private ImageIcon preview;
     @Override
     public BufferedImage processImage(BufferedImage image) {
         final double[][] filter = {{1, 4, 6, 4, 1}, {4, 16, 24, 16, 4}, {6, 24, -476, 24, 6}, {4, 16, 24, 16, 4}, {1, 4, 6, 4, 1}};
@@ -30,7 +30,7 @@ public class SharpenFilter implements FilterInterface {
     }
 
     @Override
-    public void setPreview(BufferedImage preview)
+    public void setPreview(ImageIcon preview)
     {
         this.preview = preview;
     }

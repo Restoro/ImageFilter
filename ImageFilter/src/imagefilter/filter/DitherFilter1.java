@@ -48,7 +48,7 @@ public class DitherFilter1 implements FilterInterface
     };
     
     private final Setting[] settings;
-    private BufferedImage preview;
+    private ImageIcon preview;
             
     public DitherFilter1()
     {
@@ -177,7 +177,7 @@ public class DitherFilter1 implements FilterInterface
     }
 
     @Override
-    public void setPreview(BufferedImage preview)
+    public void setPreview(ImageIcon preview)
     {
         this.preview = preview;
     }

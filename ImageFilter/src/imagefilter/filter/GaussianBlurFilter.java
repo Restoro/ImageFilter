@@ -23,7 +23,7 @@ public class GaussianBlurFilter implements FilterInterface {
     // once horizontally and once vertically
 
     private final Setting[] settings;
-    private BufferedImage preview;
+    private ImageIcon preview;
 
     public GaussianBlurFilter() {
         settings = new Setting[1];
@@ -156,7 +156,7 @@ public class GaussianBlurFilter implements FilterInterface {
     }
 
     @Override
-    public void setPreview(BufferedImage preview) {
+    public void setPreview(ImageIcon preview) {
         this.preview = preview;
     }
 

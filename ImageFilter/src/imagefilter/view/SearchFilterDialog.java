@@ -8,8 +8,6 @@ package imagefilter.view;
 import imagefilter.filter.FilterInterface;
 import imagefilter.helper.FilterClassLoader;
 import imagefilter.helper.Tools;
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 import java.awt.image.BufferedImage;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -144,7 +142,7 @@ public class SearchFilterDialog extends JDialog
             try
             {
                 img = filterInterface.processImage(TEST_IMAGE);
-                filterInterface.setPreview(img);
+                filterInterface.setPreview(new ImageIcon(img));
                 panImg.setImage(img);
             } catch(Throwable t)
             {

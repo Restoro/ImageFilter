@@ -23,7 +23,7 @@ import javax.swing.ImageIcon;
 public class WaterFilter implements FilterInterface {
 
     private final Setting[] settings;
-    private BufferedImage preview;
+    private ImageIcon preview;
     
     public WaterFilter() {
         settings = new Setting[2];
@@ -95,7 +95,7 @@ public class WaterFilter implements FilterInterface {
     }
 
     @Override
-    public void setPreview(BufferedImage preview)
+    public void setPreview(ImageIcon preview)
     {
         this.preview = preview;
     }
