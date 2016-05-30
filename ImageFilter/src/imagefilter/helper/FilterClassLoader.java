@@ -6,7 +6,7 @@
 package imagefilter.helper;
 
 import imagefilter.filter.FilterInterface;
-import imagefilter.helper.Tools;
+import imagefilter.view.PluginsDialog;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -15,7 +15,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -74,32 +76,44 @@ public class FilterClassLoader extends ClassLoader
         ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
         byte[] buffer = new byte[1024];
 
-        try(DirectoryStream<Path> directoryStream = Files.newDirectoryStream(pluginDirectory))
+        Map<String, Path> classPathes = new HashMap<>();
+        Map<String, Path> imgPathes = new HashMap<>();
+        Path classes = pluginDirectory.resolve("class");
+        Path imgs = pluginDirectory.resolve("img");
+        try
         {
-            directoryStream.forEach(x
-                    -> 
-                    {
-                        if(!Files.isDirectory(x) && x.toString().endsWith(".class"))
-                        {
-                            try
-                            {
-                                readFile(x, out, buffer);
-                                Class c = define(out.toByteArray(), 0, out.size());
-                                if(FilterInterface.class.isAssignableFrom(c) && !FilterInterface.class.equals(c))
-                                {
-                                    FilterInterface filter = (FilterInterface) c.newInstance();
-                                    filters.add(filter);
-                                }
-                            } catch(Throwable t)
-                            {
-                                Logger.getLogger(FilterClassLoader.class.getName()).log(Level.SEVERE, null, t);
-                            }
-                        }
-            });
-        } catch(IOException e)
+            Files.walk(classes, 0)
+                    .filter(p -> !Files.isDirectory(p) && p.toString().endsWith(".class"))
+                    .forEach(p -> classPathes.put(nameWithoutExtension(classes.relativize(p).toString()), p));
+            Files.walk(imgs, 0)
+                    .filter(p -> !Files.isDirectory(p) && isJPGorPNG(p.toString()))
+                    .forEach(p -> imgPathes.put(nameWithoutExtension(classes.relativize(p).toString()), p));
+        } catch(IOException ex)
         {
-            System.out.println("Error in Classloader:"+e.getMessage());
+            Logger.getLogger(PluginsDialog.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+        classPathes.forEach((s, p)
+                -> 
+                {
+                    Path img = imgPathes.get(s);
+                    if(img != null)
+                    {
+                        try
+                        {
+                            readFile(p, out, buffer);
+                            Class c = define(out.toByteArray(), 0, out.size());
+                            if(FilterInterface.class.isAssignableFrom(c) && !FilterInterface.class.equals(c))
+                            {
+                                FilterInterface filter = (FilterInterface) c.newInstance();
+                                filters.add(filter);
+                            }
+                        } catch(IOException | InstantiationException | IllegalAccessException ex)
+                        {
+                            Logger.getLogger(FilterClassLoader.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+        });
         return filters;
     }
 
@@ -129,5 +143,29 @@ public class FilterClassLoader extends ClassLoader
     private Class define(byte[] b, int offset, int length)
     {
         return this.defineClass(null, b, offset, length);
+    }
+
+    private String nameWithoutExtension(String fileName)
+    {
+        int i = fileName.lastIndexOf('.');
+        if(i > 0)
+        {
+            return fileName.substring(0, i);
+        }
+        return "";
+    }
+
+    private boolean isJPGorPNG(String fileName)
+    {
+        int i = fileName.lastIndexOf('.');
+        if(i > 0)
+        {
+            String s = fileName.substring(i + 1);
+            if(s.equals("png") || s.equals("jpg"))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }

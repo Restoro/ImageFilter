@@ -7,7 +7,6 @@ package imagefilter.model;
 
 import imagefilter.filter.FilterInterface;
 import imagefilter.helper.FilterOperations;
-import imagefilter.helper.FilterTask;
 import imagefilter.listener.ApplyingFiltersChangedListener;
 import imagefilter.listener.FiltersChangedListener;
 import java.awt.image.BufferedImage;
