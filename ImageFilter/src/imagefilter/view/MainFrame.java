@@ -250,7 +250,7 @@ public class MainFrame extends JFrame {
                     saveDisplay.setEnabled(b);
                     saveDisplayAs.setEnabled(b);
                     settingsPanel.removeAll();
-                    settingsPanel.revalidate();
+                    settingsPanel.updateUI();
                     if (filterPair.filter != null) {
                         updateSettings(filterPair.filter);
                     }
