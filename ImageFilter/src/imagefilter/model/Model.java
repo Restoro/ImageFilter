@@ -7,7 +7,6 @@ package imagefilter.model;
 
 import imagefilter.filter.FilterInterface;
 import imagefilter.helper.FilterOperations;
-import imagefilter.helper.FilterTask;
 import imagefilter.listener.ApplyingFiltersChangedListener;
 import imagefilter.listener.FiltersChangedListener;
 import java.awt.image.BufferedImage;
@@ -31,7 +30,7 @@ import java.util.logging.Logger;
  * @author Fritsch
  */
 public class Model {
-    
+
     private BufferedImage referenceImage;
     private FilterPair displayImage;
     private volatile int currentImage;
@@ -46,6 +45,8 @@ public class Model {
     private final ScheduledExecutorService filterProcessor;
     private final FilterOperations filterOpRunnable;
     private ScheduledFuture filterResult;
+
+    private boolean removeFilterIfAppliedInList = true;
 
     public Model() {
         this.displayImageChangedListeners = new LinkedList<>();
@@ -73,6 +74,10 @@ public class Model {
             deleteAllApplyingFilters();
             setDisplayImage(new FilterPair(null, referenceImage));
         }
+    }
+
+    public void setRemoveFilterIfAppliedInList(boolean removeFilterIfAppliedInList) {
+        this.removeFilterIfAppliedInList = removeFilterIfAppliedInList;
     }
 
     public void setFilters(Collection<FilterInterface> filters) {
@@ -162,18 +167,23 @@ public class Model {
         if (filter == null || referenceImage == null) {
             return;
         }
-        if (applyingFilters.indexOf(displayImage) != applyingFilters.size() - 1) {
-            continueWithApplyingFilter(applyingFilters.indexOf(displayImage));
-        }
-        fireApplyingFiltersChanged(listener -> listener.addApplyingFilter(filter));
-        synchronized (applyingFilters) {
+        if (getIndexOfFilterPair(displayImage) != applyingFilters.size() - 1) {
             try {
-                applyingFilters.add(new FilterPair(filter.getClass().newInstance(), null));
+                continueWithApplyingFilter(getIndexOfFilterPair(displayImage), new FilterPair(filter.getClass().newInstance(), null));
             } catch (InstantiationException | IllegalAccessException ex) {
                 Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
             }
+        } else {
+            fireApplyingFiltersChanged(listener -> listener.addApplyingFilter(filter));
+            synchronized (applyingFilters) {
+                try {
+                    applyingFilters.add(new FilterPair(filter.getClass().newInstance(), null));
+                } catch (InstantiationException | IllegalAccessException ex) {
+                    Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            applyFilters();
         }
-        applyFilters();
     }
 
     public void removeApplyingFilter(int index) {
@@ -203,19 +213,30 @@ public class Model {
         }
     }
 
-    private void continueWithApplyingFilter(int index) {
+    private void continueWithApplyingFilter(int index, FilterPair newFilterPair) {
         if (index >= applyingFilters.size()) {
             return;
         }
-        for (int toRemove = applyingFilters.size() - 1; toRemove > index; toRemove--) {
-            //Lambda needs final variables as reference
-            final int indexToRemove = toRemove;
-            synchronized (applyingFilters) {
-                applyingFilters.remove(indexToRemove);
+        if (removeFilterIfAppliedInList) {
+            for (int toRemove = applyingFilters.size() - 1; toRemove > index; toRemove--) {
+                //Lambda needs final variables as reference
+                final int indexToRemove = toRemove;
+                synchronized (applyingFilters) {
+                    applyingFilters.remove(indexToRemove);
+                }
+                fireApplyingFiltersChanged(listener -> listener.removeApplyingFilter(indexToRemove));
             }
-            fireApplyingFiltersChanged(listener -> listener.removeApplyingFilter(indexToRemove));
+            synchronized (applyingFilters) {
+                applyingFilters.add(newFilterPair);
+            }
+            fireApplyingFiltersChanged(listener -> listener.addApplyingFilter(newFilterPair.filter));
+        } else {
+            synchronized (applyingFilters) {
+                applyingFilters.add((index + 1), newFilterPair);
+            }
+            fireApplyingFiltersChanged(listener -> listener.applyingFiltersChangedPair(applyingFilters));
         }
-        applyFilters(index);
+        applyFilters(index+1);
     }
 
     public BufferedImage getCurrentImage() {
@@ -272,9 +293,8 @@ public class Model {
         }
         applyFilters(index);
     }
-    
-    public int getIndexOfFilterPair(FilterPair filterPair)
-    {
+
+    public int getIndexOfFilterPair(FilterPair filterPair) {
         return this.applyingFilters.indexOf(filterPair);
     }
 

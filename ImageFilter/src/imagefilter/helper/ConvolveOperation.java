@@ -23,6 +23,7 @@ public class ConvolveOperation {
 
         if (image.getRaster().getDataBuffer() instanceof DataBufferByte) {
             byte[] pixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
+            byte[] outPixels = ((DataBufferByte) proceedImage.getRaster().getDataBuffer()).getData();
 
             factor = 1/factor;
             for (int x = 0; x < image.getWidth(); x++) {
@@ -42,10 +43,11 @@ public class ConvolveOperation {
                     r = Tools.boundaryCheck(r * factor + bias);
                     g = Tools.boundaryCheck(g * factor + bias);
                     b = Tools.boundaryCheck(b * factor + bias);
-                    proceedImage.setRGB(x, y, ((r) << 16 | (g) << 8 | (b)));
+                    outPixels[(x + y * proceedImage.getWidth())*3]=(byte) (b&0xFF);
+                    outPixels[(x + y * proceedImage.getWidth())*3+1]=(byte) (g&0xFF);
+                    outPixels[(x + y * proceedImage.getWidth())*3+2]=(byte) (r&0xFF);
                 }
             }
-
             return proceedImage;
         } else {
             return image;

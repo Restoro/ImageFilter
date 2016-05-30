@@ -18,6 +18,7 @@ public interface ApplyingFiltersChangedListener
     public void addApplyingFilter(FilterInterface filter);
     public void removeApplyingFilter(int index);
     public void applyingFiltersChanged(Collection<FilterInterface> filters);
+    public void applyingFiltersChangedPair(Collection<FilterPair> filters);
     public void startApplyingFilter(int index);
     public void finished(FilterPair filter);
 }

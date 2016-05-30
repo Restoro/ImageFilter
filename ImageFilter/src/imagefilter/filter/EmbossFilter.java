@@ -10,7 +10,6 @@ import imagefilter.helper.Tools;
 import imagefilter.model.Setting;
 import java.awt.image.BufferedImage;
 import javax.swing.ImageIcon;
-import javax.swing.JSlider;
 
 /**
  *

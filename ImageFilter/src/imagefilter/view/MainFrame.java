@@ -13,6 +13,7 @@ import imagefilter.model.Model.FilterPair;
 import imagefilter.model.Setting;
 import imagefilter.model.SettingWithXOptions;
 import java.awt.BorderLayout;
+import java.awt.CheckboxMenuItem;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -26,6 +27,7 @@ import java.util.Hashtable;
 import javax.imageio.ImageIO;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -61,6 +63,7 @@ public class MainFrame extends JFrame {
     private JMenuItem saveLastFilter;
     private JMenuItem saveDisplayAs;
     private JMenuItem saveLastFilterAs;
+    private JCheckBoxMenuItem chkbToggleInListFilter;
     private MenuHandler handler;
     private JList filterList;
     private Model model;
@@ -188,7 +191,14 @@ public class MainFrame extends JFrame {
         menu.add(saveLastFilterAs);
 
         menuBar.add(menu);
-
+        
+        JMenu menuSettings = new JMenu("Settings");
+        chkbToggleInListFilter = new JCheckBoxMenuItem("Remove Filter");
+        chkbToggleInListFilter.setToolTipText("Removes Filter if applying Filter is executed on specific Filter");
+        chkbToggleInListFilter.addChangeListener(new SettingsChangedHandler());
+        chkbToggleInListFilter.setState(true);
+        menuSettings.add(chkbToggleInListFilter);
+        menuBar.add(menuSettings);
         this.setJMenuBar(menuBar);
     }
 
@@ -226,6 +236,12 @@ public class MainFrame extends JFrame {
                 boolean b = filterCount > 0;
                 saveLastFilter.setEnabled(b);
                 saveLastFilterAs.setEnabled(b);
+            }
+
+            @Override
+            public void applyingFiltersChangedPair(Collection<FilterPair> filters) {
+                filterCount = filters.size();
+                checkEnabled();
             }
         });
         model.addDisplayImageChangedListener(filterPair
@@ -265,6 +281,9 @@ public class MainFrame extends JFrame {
                     changeSetting.setCurValue(sourceSlider.getValue());
                     model.setSetting();
                 }
+            } else if(e.getSource().equals(chkbToggleInListFilter))
+            {
+                model.setRemoveFilterIfAppliedInList(chkbToggleInListFilter.getState());
             }
         }
 

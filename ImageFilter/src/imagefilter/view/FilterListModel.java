@@ -72,5 +72,14 @@ public class FilterListModel extends DefaultListModel<FilterInterface>
             FilterListModel.this.listRenderer.setCurrentOpIndex(FilterListModel.this.size());
         }
 
+        @Override
+        public void applyingFiltersChangedPair(Collection<FilterPair> filters) {
+            FilterListModel.this.removeAllElements();
+            for(FilterPair f : filters)
+            {
+                FilterListModel.this.addElement(f.filter);
+            }
+        }
+
     }
 }
