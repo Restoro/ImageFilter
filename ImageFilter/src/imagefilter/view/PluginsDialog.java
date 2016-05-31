@@ -46,6 +46,7 @@ public class PluginsDialog extends JDialog
     {
         this.setModal(true);
         this.setSize(400, 500);
+        setTitle("Plugins");
 
         btnAdd = new JButton("Add");
         btnRemove = new JButton("Remove");

@@ -65,6 +65,7 @@ public class SearchFilterDialog extends JDialog
     {
         setModal(true);
         setSize(400, 200);
+        setTitle("Add Plugin");
 
         txtPath = new javax.swing.JTextField();
         txtPath.setEditable(false);
