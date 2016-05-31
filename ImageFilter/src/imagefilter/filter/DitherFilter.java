@@ -118,10 +118,9 @@ public class DitherFilter implements FilterInterface {
                 }
             }
         }
-        BufferedImage dest = new BufferedImage(width, height, Constants.IMAGE_STANDARD_TYPE);
-        dest.setRGB(0, 0, width, height, outPixels, 0, width);
+        proceedImage.setRGB(0, 0, width, height, outPixels, 0, width);
 
-        return dest;
+        return proceedImage;
     }
 
     // searches for the closest color in the palette that suits best
