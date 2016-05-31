@@ -105,24 +105,16 @@ public class DitherFilter1 implements FilterInterface {
                 // these values were developed by floyd and steinberg
                 // Have a look at: http://www.tannerhelland.com/4660/dithering-eleven-algorithms-source-code/
                 if (x + 1 < width) {
-                    int newRgb =  add(inPixels[yOffset + x + 1], mul(rgbErr, 7.0f / 16));
-                    inPixels[yOffset + x + 1] = newRgb;
-                    System.out.println(((newRgb>>16)&0xff) + " " + ((newRgb>>8)&0xff) + " "+ ((newRgb)&0xff));
+                    inPixels[yOffset + x + 1] = add(inPixels[yOffset + x + 1], mul(rgbErr, 7.0f / 16));
                 }
                 if (x - 1 >= 0 && y + 1 < height) {
-                    int newRgb =  add(inPixels[yOffset + width + x - 1], mul(rgbErr, 3.0f / 16));
-                    inPixels[yOffset + width + x - 1] = newRgb;
-                    System.out.println(((newRgb>>16)&0xff) + " " + ((newRgb>>8)&0xff) + " "+ ((newRgb)&0xff));
+                    inPixels[yOffset + width + x - 1] = add(inPixels[yOffset + width + x - 1], mul(rgbErr, 3.0f / 16));
                 }
                 if (y + 1 < height) {
-                    int newRgb =  add(inPixels[yOffset + width + x], mul(rgbErr, 5.0f / 16));
-                    inPixels[yOffset + width + x] = newRgb;
-                    System.out.println(((newRgb>>16)&0xff) + " " + ((newRgb>>8)&0xff) + " "+ ((newRgb)&0xff));
+                    inPixels[yOffset + width + x] = add(inPixels[yOffset + width + x], mul(rgbErr, 5.0f / 16));
                 }
                 if (x + 1 < width && y + 1 < height) {
-                    int newRgb =  add(inPixels[yOffset + width + x + 1], mul(rgbErr, 1.0f / 16));
-                    inPixels[yOffset + width + x + 1] = newRgb;
-                    System.out.println(((newRgb>>16)&0xff) + " " + ((newRgb>>8)&0xff) + " "+ ((newRgb)&0xff));
+                    inPixels[yOffset + width + x + 1] = add(inPixels[yOffset + width + x + 1], mul(rgbErr, 1.0f / 16));
                 }
             }
         }

@@ -29,7 +29,7 @@ public class Tools
 {
     public static int boundaryCheck(double value, int max)
     {
-        return (int) Math.min(Math.max(Math.round(value), 0), 255);
+        return (int) Math.min(Math.max(Math.round(value), 0), max);
     }
 
     public static int boundaryCheck(double value)
