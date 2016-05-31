@@ -69,7 +69,7 @@ public class HSBAdjustFilter implements FilterInterface {
 
     @Override
     public ImageIcon getPreview() {
-        return new ImageIcon(Tools.getResource("scrollright.png"));
+        return new ImageIcon(Tools.getResource("SampleImages/HSBAdjustFilter.jpg"));
     }
 
     @Override
