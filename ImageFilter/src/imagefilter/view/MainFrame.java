@@ -10,6 +10,7 @@ import imagefilter.helper.Tools;
 import imagefilter.listener.ApplyingFiltersChangedListener;
 import imagefilter.model.Model;
 import imagefilter.model.Model.FilterPair;
+import imagefilter.model.PluginModel;
 import imagefilter.model.Setting;
 import imagefilter.model.SettingWith2Options;
 import imagefilter.model.SettingWithXOptions;
@@ -19,7 +20,6 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.awt.image.ImageObserver;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -68,6 +68,7 @@ public class MainFrame extends JFrame {
     private MenuHandler handler;
     private JList filterList;
     private Model model;
+    private PluginModel pluginModel;
 
     private JPanel settingsPanel;
 
@@ -75,9 +76,10 @@ public class MainFrame extends JFrame {
         createWindow();
     }
 
-    public MainFrame(int width, int heigth, Model model) {
+    public MainFrame(int width, int heigth, Model model, PluginModel pluginModel) {
         this.setSize(width, heigth);
         this.model = model;
+        this.pluginModel = pluginModel;
         createWindow();
         initModel();
     }
@@ -352,7 +354,7 @@ public class MainFrame extends JFrame {
             } else if (e.getSource() == saveLastFilterAs) {
                 saveAs(model.getCurrentImage());
             } else if (e.getSource() == plugins) {
-                PluginsDialog.showPluginDialog(model);
+                PluginsDialog.showPluginDialog(pluginModel);
             }
         }
 

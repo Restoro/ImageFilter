@@ -98,6 +98,13 @@ public class Model {
         }
     }
 
+    public void changeFilters(List<FilterInterface> removed, List<FilterInterface> added)
+    {
+        this.allFilters.removeAll(removed);
+        this.allFilters.addAll(added);
+        fireFiltersChanged();
+    }
+
     public Collection<FilterInterface> addFiltersChangedListener(FiltersChangedListener listener) {
         filtersChangedListeners.add(listener);
         return allFilters;
