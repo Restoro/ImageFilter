@@ -67,7 +67,7 @@ public class SearchFilterDialog extends JDialog
         setSize(400, 200);
 
         txtPath = new javax.swing.JTextField();
-        txtPath.addActionListener(a -> showFilter());
+        txtPath.setEditable(false);
         btnBrowse = new javax.swing.JButton("Browse");
         btnBrowse.addActionListener(a -> showFileChooser());
         panImg = new ImagePanel(null, TEST_IMAGE);
@@ -134,6 +134,7 @@ public class SearchFilterDialog extends JDialog
         {
             txtPath.setText(fc.getSelectedFile().getAbsolutePath());
         }
+        showFilter();
     }
 
     private void showFilter()
@@ -189,6 +190,7 @@ public class SearchFilterDialog extends JDialog
     {
         filter = null;
         txtPath.setText("");
+        panImg.setImage(TEST_IMAGE);
         success(false);
         setVisible(true);
     }
