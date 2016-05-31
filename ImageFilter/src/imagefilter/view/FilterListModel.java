@@ -1,8 +1,6 @@
 package imagefilter.view;
 
-import imagefilter.filter.ChannelMixFilter;
 import imagefilter.filter.FilterInterface;
-import imagefilter.helper.FilterTask;
 import imagefilter.listener.ApplyingFiltersChangedListener;
 import imagefilter.model.Model;
 import imagefilter.model.Model.FilterPair;

@@ -13,7 +13,6 @@ import imagefilter.model.Model.FilterPair;
 import imagefilter.model.Setting;
 import imagefilter.model.SettingWithXOptions;
 import java.awt.BorderLayout;
-import java.awt.CheckboxMenuItem;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -39,10 +38,8 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
-import javax.swing.JToolBar;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -336,7 +333,7 @@ public class MainFrame extends JFrame {
                 saveAs(model.getCurrentImage());
             } else if(e.getSource() == plugins)
             {
-                new PluginsDialog(Paths.get("C:\\")).setVisible(true);
+                PluginsDialog.showPluginDialog(model);
             }
         }
 

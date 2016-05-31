@@ -11,12 +11,12 @@ import imagefilter.listener.ApplyingFiltersChangedListener;
 import imagefilter.listener.FiltersChangedListener;
 import java.awt.image.BufferedImage;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import imagefilter.listener.DisplayImageChangedListener;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -35,7 +35,7 @@ public class Model {
     private FilterPair displayImage;
     private volatile int currentImage;
 
-    private final Set<FilterInterface> allFilters;
+    private final SortedSet<FilterInterface> allFilters;
     private final List<FilterPair> applyingFilters;
 
     private final List<DisplayImageChangedListener> displayImageChangedListeners;
@@ -52,7 +52,7 @@ public class Model {
         this.displayImageChangedListeners = new LinkedList<>();
         this.filtersChangedListeners = new LinkedList<>();
         this.applyingFiltersChangedListeners = new LinkedList<>();
-        this.allFilters = new HashSet<>();
+        this.allFilters = new TreeSet<>((FilterInterface a, FilterInterface b) -> {return a.toString().compareTo(b.toString());});
         this.applyingFilters = new LinkedList<>();
         this.filterProcessor = Executors.newSingleThreadScheduledExecutor();
         this.filterOpRunnable = new FilterOperations(this, applyingFilters);

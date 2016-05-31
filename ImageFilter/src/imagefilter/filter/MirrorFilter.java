@@ -19,7 +19,7 @@ import javax.swing.ImageIcon;
 public class MirrorFilter implements FilterInterface {
 
     private final Setting[] settings;
-    private BufferedImage preview;
+    private ImageIcon preview;
     public MirrorFilter() {
         settings = new Setting[1];
         settings[0] = new Setting("Mirror Darkness", 0, 100, 35);
@@ -76,7 +76,7 @@ public class MirrorFilter implements FilterInterface {
     }
 
     @Override
-    public void setPreview(BufferedImage preview)
+    public void setPreview(ImageIcon preview)
     {
         this.preview = preview;
     }

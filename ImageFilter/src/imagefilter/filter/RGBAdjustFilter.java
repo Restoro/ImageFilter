@@ -20,7 +20,7 @@ public class RGBAdjustFilter implements FilterInterface {
     
     private final Setting[] settings;
     
-    private BufferedImage preview;
+    private ImageIcon preview;
     
     public RGBAdjustFilter() {
         settings = new Setting[3];
@@ -67,7 +67,7 @@ public class RGBAdjustFilter implements FilterInterface {
     }
 
     @Override
-    public void setPreview(BufferedImage preview)
+    public void setPreview(ImageIcon preview)
     {
         this.preview = preview;
     }
