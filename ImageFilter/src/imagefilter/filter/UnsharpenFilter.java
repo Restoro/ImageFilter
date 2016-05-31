@@ -15,7 +15,7 @@ import javax.swing.ImageIcon;
  *
  * @author Fritsch
  */
-public class SharpenFilter implements FilterInterface {
+public class UnsharpenFilter implements FilterInterface {
 
     private ImageIcon preview;
     @Override
@@ -26,7 +26,7 @@ public class SharpenFilter implements FilterInterface {
 
     @Override
     public ImageIcon getPreview() {
-        return preview;
+        return new ImageIcon(Tools.getResource("SampleImages/UnsharpenFilter.jpg"));
     }
 
     @Override
@@ -37,7 +37,7 @@ public class SharpenFilter implements FilterInterface {
 
     @Override
     public String toString() {
-        return "Sharpen";
+        return "Unsharpen";
     }
 
     @Override

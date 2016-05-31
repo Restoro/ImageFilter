@@ -9,9 +9,7 @@ import imagefilter.helper.Constants;
 import imagefilter.helper.Tools;
 import imagefilter.model.Setting;
 import imagefilter.model.SettingWithXOptions;
-import java.awt.Graphics;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
 import javax.swing.ImageIcon;
 
 /**
@@ -53,7 +51,7 @@ public class DitherFilter implements FilterInterface {
 
     public DitherFilter() {
         settings = new Setting[1];
-        settings[0] = new SettingWithXOptions("Palette", 0, 2, 2) {
+        settings[0] = new SettingWithXOptions("Palette", 0, 2, 0) {
             @Override
             public String[] getOptionNames() {
                 return new String[]{"B/W", "Gray", "Color"};
@@ -76,48 +74,29 @@ public class DitherFilter implements FilterInterface {
                 palette = paletteColor;
         }
 
+        BufferedImage proceedImage = new BufferedImage(image.getWidth(), image.getHeight(), Constants.IMAGE_STANDARD_TYPE);
+        image = Tools.convertToStandardType(image);
+
         int width = image.getWidth();
         int height = image.getHeight();
 
-        BufferedImage proceedImage = new BufferedImage(width, height, Constants.IMAGE_STANDARD_TYPE);
-        image = Tools.convertToStandardType(image);
-        
-        BufferedImage imgCopy = new BufferedImage(width, height, Constants.IMAGE_STANDARD_TYPE);
-        Graphics g = imgCopy.createGraphics();
-        g.drawImage(image, 0, 0, null);
+        int[] inPixels = new int[width * height];
+        int[] outPixels = new int[width * height];
 
-        if (image.getRaster().getDataBuffer() instanceof DataBufferByte) {
-            byte[] inPixels = ((DataBufferByte) imgCopy.getRaster().getDataBuffer()).getData();
-            byte[] outPixels = ((DataBufferByte) proceedImage.getRaster().getDataBuffer()).getData();
-
-            dither(inPixels, outPixels, width, height);
-
-            return proceedImage;
-        } else {
-            return image;
-        }
-    }
-
-    private void dither(byte[] inPixels, byte[] outPixels, int width, int height) {
+        image.getRGB(0, 0, width, height, inPixels, 0, width);
 
         for (int y = 0; y < height; y++) {
             int yOffset = y * width;
             for (int x = 0; x < width; x++) {
                 // gets the right pixel with the yOffset, because of the one-dimensional array
-                int[] bgr = new int[3];
-                bgr[0] = inPixels[(yOffset + x) * 3] & 0xff;
-                bgr[1] = inPixels[(yOffset + x) * 3 + 1] & 0xff;
-                bgr[2] = inPixels[(yOffset + x) * 3 + 2] & 0xff;
-
+                int rgb = inPixels[yOffset + x];
                 // finds the closest color in the palette that suits best
-                int[] bgrNew = findClosestColor(bgr);
+                int rgbNew = findClosestColor(rgb);
                 // sets the new color to the outPixels array for destination image
-                outPixels[(yOffset + x) * 3] = (byte) bgrNew[0];
-                outPixels[(yOffset + x) * 3 + 1] = (byte) bgrNew[1];
-                outPixels[(yOffset + x) * 3 + 2] = (byte) bgrNew[2];
+                outPixels[yOffset + x] = rgbNew;
 
-                // calculates an error bgr value
-                int[] bgrErr = sub(bgr, bgrNew);
+                // calculates an error rgb value
+                int[] rgbErr = sub(rgb, rgbNew);
 
                 // the error rgb value is then multiplied by a factor and then added to pixels, which come after the current pixel
                 // . . . 
@@ -126,73 +105,72 @@ public class DitherFilter implements FilterInterface {
                 // these values were developed by floyd and steinberg
                 // Have a look at: http://www.tannerhelland.com/4660/dithering-eleven-algorithms-source-code/
                 if (x + 1 < width) {
-                    float f = 7.0f / 16;
-
-                    for (int i = 0; i <= 2; i++) {
-                        int mulVal = (int) (bgrErr[i] * f);
-                        int addVal = inPixels[(yOffset + x + 1) * 3 + i] + mulVal;
-                        inPixels[(yOffset + x + 1) * 3 + i] = (byte) (Tools.boundaryCheck(addVal));
-                    }
+                    inPixels[yOffset + x + 1] = add(inPixels[yOffset + x + 1], mul(rgbErr, 7.0f / 16));
                 }
                 if (x - 1 >= 0 && y + 1 < height) {
-                    float f = 3.0f / 16;
-
-                    for (int i = 0; i <= 2; i++) {
-                        int mulVal = (int) (bgrErr[i] * f);
-                        int addVal = inPixels[(yOffset + width + x - 1) * 3 + i] + mulVal;
-                        inPixels[(yOffset + width + x - 1) * 3 + i] = (byte) (Tools.boundaryCheck(addVal));
-                    }
+                    inPixels[yOffset + width + x - 1] = add(inPixels[yOffset + width + x - 1], mul(rgbErr, 3.0f / 16));
                 }
                 if (y + 1 < height) {
-                    float f = 5.0f / 16;
-
-                    for (int i = 0; i <= 2; i++) {
-                        int mulVal = (int) (bgrErr[i] * f);
-                        int addVal = inPixels[(yOffset + width + x) * 3 + i] + mulVal;
-                        inPixels[(yOffset + width + x) * 3 + i] = (byte) (Tools.boundaryCheck(addVal));
-                    }
+                    inPixels[yOffset + width + x] = add(inPixels[yOffset + width + x], mul(rgbErr, 5.0f / 16));
                 }
                 if (x + 1 < width && y + 1 < height) {
-                    float f = 1.0f / 16;
-
-                    for (int i = 0; i <= 2; i++) {
-                        int mulVal = (int) (bgrErr[i] * f);
-                        int addVal = inPixels[(yOffset + width + x + 1) * 3 + i] + mulVal;
-                        inPixels[(yOffset + width + x + 1) * 3 + i] = (byte) (Tools.boundaryCheck(addVal));
-                    }
+                    inPixels[yOffset + width + x + 1] = add(inPixels[yOffset + width + x + 1], mul(rgbErr, 1.0f / 16));
                 }
             }
         }
+        proceedImage.setRGB(0, 0, width, height, outPixels, 0, width);
+
+        return proceedImage;
     }
 
     // searches for the closest color in the palette that suits best
-    // returns an array with {b,g,r}
-    private int[] findClosestColor(int[] bgrOrig) {
+    private int findClosestColor(int rgb) {
+        int rOrig = rgb >> 16 & 0xff;
+        int gOrig = rgb >> 8 & 0xff;
+        int bOrig = rgb & 0xff;
 
-        int[] newBGR = new int[3];
+        int newRGB = 0;
 
         int min = Integer.MAX_VALUE;
         for (int[] vals : palette) {
+            int r = vals[0];
+            int g = vals[1];
+            int b = vals[2];
+
             // the color with the smallest difference suits best
-            int diff = diff(bgrOrig, vals);
+            int diff = diff(rOrig, gOrig, bOrig, r, g, b);
             if (diff < min) {
                 min = diff;
-                newBGR[0] = vals[0];
-                newBGR[1] = vals[1];
-                newBGR[2] = vals[2];
+                newRGB = r << 16 | g << 8 | b;
             }
         }
-        return newBGR;
+        return newRGB;
     }
 
-    private int diff(int[] bgr, int[] bgr2) {
-        return Math.abs(bgr[0] - bgr2[0]) + Math.abs(bgr[1] - bgr2[1]) + Math.abs(bgr[2] - bgr2[2]);
+    private int diff(int r, int g, int b, int r2, int g2, int b2) {
+        return Math.abs(r - r2) + Math.abs(g - g2) + Math.abs(b - b2);
     }
 
-    private int[] sub(int[] bgrOne, int[] bgrTwo) {
-        int newB = (bgrOne[0] - bgrTwo[0]);
-        int newG = (bgrOne[1] - bgrTwo[1]);
-        int newR = (bgrOne[2] - bgrTwo[2]);
+    private int[] sub(int rgbOne, int rgbTwo) {
+        int newR = (rgbOne >> 16 & 0xff) - (rgbTwo >> 16 & 0xff);
+        int newG = (rgbOne >> 8 & 0xff) - (rgbTwo >> 8 & 0xff);
+        int newB = (rgbOne & 0xff) - (rgbTwo & 0xff);
+        return new int[]{newR, newG, newB};
+    }
+
+    // adds one rgb value to another --> BoundaryCheck needed
+    private int add(int rgbOne, int[] rgbTwo) {
+        int newR = Tools.boundaryCheck((rgbOne >> 16 & 0xff) + rgbTwo[0]);
+        int newG = Tools.boundaryCheck((rgbOne >> 8 & 0xff) + rgbTwo[1]);
+        int newB = Tools.boundaryCheck((rgbOne & 0xff) + rgbTwo[2]);
+        return newR << 16 | newG << 8 | newB;
+    }
+
+    // multiplies the errorRGB value with an given factor
+    private int[] mul(int[] rgb, float f) {
+        int newR = (int) (rgb[0] * f);
+        int newG = (int) (rgb[1] * f);
+        int newB = (int) (rgb[2] * f);
         return new int[]{newR, newG, newB};
     }
 
@@ -215,4 +193,5 @@ public class DitherFilter implements FilterInterface {
     public Setting[] getSettings() {
         return settings;
     }
+
 }
