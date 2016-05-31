@@ -45,9 +45,9 @@ public class GammaFilter implements FilterInterface{
                 int b = pixels[pixel] & 0xFF;
                 
                 //https://en.wikipedia.org/wiki/Gamma_correction
-                r = (int) Math.round(255 * Math.pow(((float)r/255f), 1f/gamma));
-                g = (int) Math.round(255 * Math.pow(((float)g/255f), 1f/gamma));
-                b = (int) Math.round(255 * Math.pow(((float)b/255f), 1f/gamma));
+                r = (int) Math.round(255 * Math.pow(((float)r/255f), gamma));
+                g = (int) Math.round(255 * Math.pow(((float)g/255f), gamma));
+                b = (int) Math.round(255 * Math.pow(((float)b/255f), gamma));
                 
                 outPixels[pixel+2] = (byte) (r & 0xFF); 
                 outPixels[pixel+1] = (byte) (g & 0xFF);
