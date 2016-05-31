@@ -28,7 +28,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 public class SearchFilterDialog extends JDialog
 {
     private static SearchFilterDialog dialog;
-    private static final ImageIcon TEST_ICON = new ImageIcon(Tools.getResource("preview.png"));
+    private static final ImageIcon TEST_ICON = new ImageIcon(Tools.getResource("preview.jpg"));
     private static final BufferedImage TEST_IMAGE = new BufferedImage(TEST_ICON.getIconWidth(), TEST_ICON.getIconHeight(), BufferedImage.TYPE_3BYTE_BGR);
 
     private FileNameExtensionFilter fileFilter;
