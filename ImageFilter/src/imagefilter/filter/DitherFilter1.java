@@ -177,7 +177,7 @@ public class DitherFilter1 implements FilterInterface {
 
     @Override
     public ImageIcon getPreview() {
-        return new ImageIcon(Tools.getResource("SampleImages/DitherFilter.jpg"));
+        return preview;
     }
 
     @Override

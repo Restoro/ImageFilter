@@ -50,7 +50,7 @@ public class GrayFilter implements FilterInterface {
 
     @Override
     public ImageIcon getPreview() {
-        return new ImageIcon(Tools.getResource("SampleImages/GrayFilter.jpg"));
+        return preview;
     }
 
     @Override

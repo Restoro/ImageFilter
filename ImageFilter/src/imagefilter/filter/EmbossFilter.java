@@ -26,7 +26,7 @@ public class EmbossFilter implements FilterInterface {
 
     @Override
     public ImageIcon getPreview() {
-        return new ImageIcon(Tools.getResource("SampleImages/EmbossFilter.jpg"));
+        return preview;
     }
 
     @Override

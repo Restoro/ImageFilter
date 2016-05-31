@@ -50,7 +50,7 @@ public class InvertFilter implements FilterInterface {
 
     @Override
     public ImageIcon getPreview() {
-        return new ImageIcon(Tools.getResource("SampleImages/InvertFilter.jpg"));
+        return preview;
     }
 
     @Override
