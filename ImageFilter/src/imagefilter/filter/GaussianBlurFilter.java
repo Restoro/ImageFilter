@@ -80,7 +80,7 @@ public class GaussianBlurFilter implements FilterInterface {
 
                     // when the value is 0, nothing should happen, because it would falsify the result
                     if (f != 0) {
-                        // ix is the right pixel of the column (concerning the matrix) in the image width
+                        // ix is the current pixel of the column (concerning the matrix) in the image width
                         int ix = x + col;
                         if (ix < 0) {
                             ix = 0;

@@ -98,24 +98,16 @@ public class DitherFilter implements FilterInterface {
                 // calculates an error rgb value
                 int[] rgbErr = sub(rgb, rgbNew);
 
-                // the error rgb value is then multiplied by a factor and then added to pixels, which come after the current pixel
+                // the error rgb value is then multiplied by a factor and then added to pixels, which follow after the current pixel
                 // . . . 
                 // . x 7
                 // 3 5 1
                 // these values were developed by floyd and steinberg
                 // Have a look at: http://www.tannerhelland.com/4660/dithering-eleven-algorithms-source-code/
-                if (x + 1 < width) {
-                    inPixels[yOffset + x + 1] = add(inPixels[yOffset + x + 1], mul(rgbErr, 7.0f / 16));
-                }
-                if (x - 1 >= 0 && y + 1 < height) {
-                    inPixels[yOffset + width + x - 1] = add(inPixels[yOffset + width + x - 1], mul(rgbErr, 3.0f / 16));
-                }
-                if (y + 1 < height) {
-                    inPixels[yOffset + width + x] = add(inPixels[yOffset + width + x], mul(rgbErr, 5.0f / 16));
-                }
-                if (x + 1 < width && y + 1 < height) {
-                    inPixels[yOffset + width + x + 1] = add(inPixels[yOffset + width + x + 1], mul(rgbErr, 1.0f / 16));
-                }
+                if (x + 1 < width)                   inPixels[yOffset +         x + 1] = add(inPixels[yOffset +         x + 1], mul(rgbErr, 7.0f / 16));
+                if (x - 1 >= 0 && y + 1 < height)    inPixels[yOffset + width + x - 1] = add(inPixels[yOffset + width + x - 1], mul(rgbErr, 3.0f / 16));
+                if (y + 1 < height)                  inPixels[yOffset + width + x    ] = add(inPixels[yOffset + width + x    ], mul(rgbErr, 5.0f / 16));
+                if (x + 1 < width && y + 1 < height) inPixels[yOffset + width + x + 1] = add(inPixels[yOffset + width + x + 1], mul(rgbErr, 1.0f / 16));
             }
         }
         proceedImage.setRGB(0, 0, width, height, outPixels, 0, width);
