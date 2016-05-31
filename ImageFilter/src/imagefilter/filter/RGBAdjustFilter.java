@@ -63,7 +63,7 @@ public class RGBAdjustFilter implements FilterInterface {
 
     @Override
     public ImageIcon getPreview() {
-        return new ImageIcon(Tools.getResource("SampleImages/RGBAdjustFilter.jpg"));
+        return preview;
     }
 
     @Override

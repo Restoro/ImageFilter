@@ -51,11 +51,15 @@ public class FilterClassLoader extends ClassLoader
             {
                 if(FilterInterface.class.isAssignableFrom(filter) && !FilterInterface.class.equals(filter))
                 {
-                    try{
-                    filters.add((FilterInterface) filter.newInstance());
+                    try
+                    {
+                        FilterInterface fi = (FilterInterface) filter.newInstance();
+                        Object o = Tools.getResource("SampleImages/" + filter.getSimpleName() + ".jpg");
+                        fi.setPreview(new ImageIcon(Tools.getResource("SampleImages/" + filter.getSimpleName() + ".jpg")));
+                        filters.add(fi);
                     } catch(InstantiationException | IllegalAccessException ex)
                     {
-                        System.out.println("Error loading Filter:"+ex.getMessage());
+                        System.out.println("Error loading Filter:" + ex.getMessage());
                     }
                 }
             }

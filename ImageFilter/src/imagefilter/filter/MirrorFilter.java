@@ -78,7 +78,7 @@ public class MirrorFilter implements FilterInterface {
 
     @Override
     public ImageIcon getPreview() {
-        return new ImageIcon(Tools.getResource("SampleImages/MirrorFilter.jpg"));
+        return preview;
     }
 
     @Override
