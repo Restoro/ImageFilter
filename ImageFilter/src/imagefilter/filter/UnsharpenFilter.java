@@ -26,7 +26,7 @@ public class UnsharpenFilter implements FilterInterface {
 
     @Override
     public ImageIcon getPreview() {
-        return new ImageIcon(Tools.getResource("SampleImages/SharpenFilter.jpg"));
+        return new ImageIcon(Tools.getResource("SampleImages/UnsharpenFilter.jpg"));
     }
 
     @Override
