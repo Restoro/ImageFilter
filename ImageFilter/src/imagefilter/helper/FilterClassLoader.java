@@ -51,10 +51,15 @@ public class FilterClassLoader extends ClassLoader
             {
                 if(FilterInterface.class.isAssignableFrom(filter) && !FilterInterface.class.equals(filter))
                 {
+                    try{
                     filters.add((FilterInterface) filter.newInstance());
+                    } catch(InstantiationException | IllegalAccessException ex)
+                    {
+                        System.out.println("Error loading Filter:"+ex.getMessage());
+                    }
                 }
             }
-        } catch(ClassNotFoundException | IOException | InstantiationException | IllegalAccessException ex)
+        } catch(ClassNotFoundException | IOException ex)
         {
             Logger.getLogger(FilterClassLoader.class.getName()).log(Level.SEVERE, null, ex);
         }

@@ -11,7 +11,7 @@ package imagefilter.model;
  */
 public class Setting {
 
-    private String name;
+    private final String name;
     private int curValue;
     private final int maxValue;
     private final int minValue;

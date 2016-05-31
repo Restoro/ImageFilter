@@ -11,6 +11,7 @@ import imagefilter.listener.ApplyingFiltersChangedListener;
 import imagefilter.model.Model;
 import imagefilter.model.Model.FilterPair;
 import imagefilter.model.Setting;
+import imagefilter.model.SettingWith2Options;
 import imagefilter.model.SettingWithXOptions;
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -40,6 +41,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
+import javax.swing.JToggleButton;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -111,37 +113,45 @@ public class MainFrame extends JFrame {
     }
 
     private void updateSettings(FilterInterface filter) {
-        
+
         if (filter.getSettings() != null) {
             for (int j = 0; j < filter.getSettings().length; j++) {
                 Setting setting = filter.getSettings()[j];
                 Box b = Box.createVerticalBox();
                 b.setPreferredSize(new Dimension(150, 0));
                 b.add(Box.createRigidArea(new Dimension(0, 10)));
-                JLabel name = new JLabel(setting.getName());
-                name.setAlignmentX(Component.CENTER_ALIGNMENT);
-                b.add(name);
-
-                JSlider slider = Tools.getJSlider(setting.getMinValue(), setting.getMaxValue(), setting.getCurValue());
-                slider.setName(j + "");
-                slider.addChangeListener(new SettingsChangedHandler());
-                Hashtable labelTable = new Hashtable();
-                if (setting instanceof SettingWithXOptions) {
-                    SettingWithXOptions settingOptions = (SettingWithXOptions) setting;
-                    String[] optionNames = settingOptions.getOptionNames();
-                    for (int i = 0; i < optionNames.length; i++) {
-                        labelTable.put(i, new JLabel(optionNames[i]));
-                    }
-                    Tools.setTickSpacingOfJSlider(slider, 1);
+                if (setting instanceof SettingWith2Options) {
+                    JToggleButton toggle = new JToggleButton(setting.getName(), (setting.getCurValue() != 0));
+                    toggle.setAlignmentX(Component.CENTER_ALIGNMENT);
+                    toggle.setName(j+"");
+                    toggle.addActionListener(new SettingsChangedHandler());
+                    b.add(toggle);
+                    
                 } else {
+                    JLabel name = new JLabel(setting.getName());
+                    name.setAlignmentX(Component.CENTER_ALIGNMENT);
+                    b.add(name);
+                    JSlider slider = Tools.getJSlider(setting.getMinValue(), setting.getMaxValue(), setting.getCurValue());
+                    slider.setName(j + "");
+                    slider.addChangeListener(new SettingsChangedHandler());
+                    Hashtable labelTable = new Hashtable();
+                    if (setting instanceof SettingWithXOptions) {
+                        SettingWithXOptions settingOptions = (SettingWithXOptions) setting;
+                        String[] optionNames = settingOptions.getOptionNames();
+                        for (int i = 0; i < optionNames.length; i++) {
+                            labelTable.put(i, new JLabel(optionNames[i]));
+                        }
+                        Tools.setTickSpacingOfJSlider(slider, 1);
+                    } else {
 
-                    labelTable.put(setting.getMinValue(), new JLabel(String.valueOf(setting.getMinValue())));
-                    labelTable.put(setting.getMaxValue(), new JLabel(String.valueOf(setting.getMaxValue())));
-                    Tools.setTickSpacingOfJSlider(slider, (setting.getMaxValue() - setting.getMinValue()) / 4);
+                        labelTable.put(setting.getMinValue(), new JLabel(String.valueOf(setting.getMinValue())));
+                        labelTable.put(setting.getMaxValue(), new JLabel(String.valueOf(setting.getMaxValue())));
+                        Tools.setTickSpacingOfJSlider(slider, (setting.getMaxValue() - setting.getMinValue()) / 4);
 
+                    }
+                    slider.setLabelTable(labelTable);
+                    b.add(slider);
                 }
-                slider.setLabelTable(labelTable);
-                b.add(slider);
                 settingsPanel.add(b);
             }
         }
@@ -172,7 +182,7 @@ public class MainFrame extends JFrame {
         menuFile.add(reset);
 
         menuFile.addSeparator();
-        
+
         saveDisplay = new JMenuItem("Save Displayed Image");
         saveDisplay.setEnabled(false);
         saveDisplay.addActionListener(handler);
@@ -192,19 +202,19 @@ public class MainFrame extends JFrame {
         saveLastFilterAs.setEnabled(false);
         saveLastFilterAs.addActionListener(handler);
         menuFile.add(saveLastFilterAs);
-        
+
         JMenu menuExtra = new JMenu("Extras");
         plugins = new JMenuItem("Plugins");
         plugins.addActionListener(handler);
         menuExtra.add(plugins);
 
         menuExtra.addSeparator();
-        
+
         chkbToggleInListFilter = new JCheckBoxMenuItem("Remove Filter");
         chkbToggleInListFilter.addChangeListener(new SettingsChangedHandler());
         chkbToggleInListFilter.setState(true);
         menuExtra.add(chkbToggleInListFilter);
-        
+
         menuBar.add(menuFile);
         menuBar.add(menuExtra);
 
@@ -277,7 +287,7 @@ public class MainFrame extends JFrame {
 //    public void addFilterBtnListener(ActionListener listener) {
 //        btnSearch.addActionListener(listener);
 //    }
-    public class SettingsChangedHandler implements ChangeListener {
+    public class SettingsChangedHandler implements ChangeListener, ActionListener {
 
         @Override
         public void stateChanged(ChangeEvent e) {
@@ -290,9 +300,19 @@ public class MainFrame extends JFrame {
                     changeSetting.setCurValue(sourceSlider.getValue());
                     model.setSetting();
                 }
-            } else if(e.getSource().equals(chkbToggleInListFilter))
-            {
+            } else if (e.getSource().equals(chkbToggleInListFilter)) {
                 model.setRemoveFilterIfAppliedInList(chkbToggleInListFilter.getState());
+            }
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if(e.getSource() instanceof JToggleButton) {
+                JToggleButton sourceToggle = (JToggleButton) e.getSource();
+                int index = Integer.valueOf(sourceToggle.getName());
+                Setting changeSetting = (model.getDisplayImage().filter.getSettings())[index];
+                changeSetting.setCurValue(sourceToggle.isSelected()?1:0);
+                model.setSetting();
             }
         }
 
@@ -331,8 +351,7 @@ public class MainFrame extends JFrame {
                 saveAs(model.getDisplayImage().image);
             } else if (e.getSource() == saveLastFilterAs) {
                 saveAs(model.getCurrentImage());
-            } else if(e.getSource() == plugins)
-            {
+            } else if (e.getSource() == plugins) {
                 PluginsDialog.showPluginDialog(model);
             }
         }

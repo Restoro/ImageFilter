@@ -8,6 +8,7 @@ package imagefilter.filter;
 import imagefilter.helper.Constants;
 import imagefilter.helper.Tools;
 import imagefilter.model.Setting;
+import imagefilter.model.SettingWith2Options;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import javax.swing.ImageIcon;
@@ -21,15 +22,17 @@ public class MirrorFilter implements FilterInterface {
     private final Setting[] settings;
     private ImageIcon preview;
     public MirrorFilter() {
-        settings = new Setting[1];
-        settings[0] = new Setting("Mirror Darkness", 0, 100, 35);
+        settings = new Setting[2];
+        settings[0] = new SettingWith2Options("Mirror Horizontal", 1);
+        settings[1] = new Setting("Mirror Darkness", 0, 100, 35);
     }
 
     
     @Override
     public BufferedImage processImage(BufferedImage image) {
         final int rate = 2;
-        final int offset = (int) (image.getWidth() / (rate * 2));
+        final int offsetX = settings[0].getCurValue()==1?((int) (image.getWidth() / (rate * 2))):0;
+        final int offsetY = settings[0].getCurValue()==1?0:(int) (image.getHeight()/ (rate * 2));
         BufferedImage proceedImage = new BufferedImage(image.getWidth(), image.getHeight(), Constants.IMAGE_STANDARD_TYPE);
         image = Tools.convertToStandardType(image);
 
@@ -47,18 +50,21 @@ public class MirrorFilter implements FilterInterface {
                     int r = pixels[index + 2] & 0xFF;
 
                     //Set Subsampled Pixel
-                    index = (((colX / rate)+offset)+(rowY/rate)*proceedImage.getWidth())*3;
+                    index = (((colX / rate)+offsetX)+(rowY/rate+offsetY)*proceedImage.getWidth())*3;
                     outPixels[index] = (byte) (b&0xff);
                     outPixels[index+1] = (byte) (g&0xff);
                     outPixels[index+2] = (byte) (r&0xff);
 
                     //Set Subsampled Mirror Pixel
-                    float mirrorDarkness = settings[0].getCurValue()/100f;
+                    float mirrorDarkness = settings[1].getCurValue()/100f;
                     r *= mirrorDarkness;
                     g *= mirrorDarkness;
                     b *= mirrorDarkness;
                     
-                    index = (((colX / rate)+offset)+(image.getHeight() - 1 - (rowY / rate))*proceedImage.getWidth())*3;
+                    if(settings[0].getCurValue() == 1)
+                        index = (((colX / rate)+offsetX)+(image.getHeight() - 1 - (rowY / rate))*proceedImage.getWidth())*3;
+                    else
+                        index = ((image.getWidth()-1-(colX / rate))+(rowY/rate+offsetY)*proceedImage.getWidth())*3;
                     outPixels[index] = (byte) (b&0xff);
                     outPixels[index+1] = (byte) (g&0xff);
                     outPixels[index+2] = (byte) (r&0xff);
