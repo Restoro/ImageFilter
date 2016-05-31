@@ -299,9 +299,9 @@ public class PluginsDialog extends JDialog
 
     private void addFilter(FilterInterface fi, Path pathFromFilter) throws IOException
     {
-        String imgFileName = Tools.nameWithoutExtension(pathFromFilter) + ".png";
+        String imgFileName = Tools.nameWithoutExtension(pathFromFilter) + ".jpg";
         Path img = pluginDirectory.resolve("img").resolve(imgFileName);
-        ImageIO.write(Tools.fromImageIconToBufferedImage(fi.getPreview()), "png", Files.newOutputStream(img, StandardOpenOption.CREATE, StandardOpenOption.WRITE));
+        ImageIO.write(Tools.fromImageIconToBufferedImage(fi.getPreview()), "jpg", Files.newOutputStream(img, StandardOpenOption.CREATE, StandardOpenOption.WRITE));
 
         Path _class = pluginDirectory.resolve("class").resolve(Tools.nameWithExtension(pathFromFilter));
         if(!Files.exists(_class))
@@ -314,7 +314,7 @@ public class PluginsDialog extends JDialog
     private void removeFilter(FilterInterface fi, Path path) throws IOException
     {
         Path _class = pluginDirectory.resolve("class").resolve(path.getFileName());
-        Path img = pluginDirectory.resolve("img").resolve(Tools.nameWithoutExtension(path) + ".png");
+        Path img = pluginDirectory.resolve("img").resolve(Tools.nameWithoutExtension(path) + ".jpg");
 
         Files.deleteIfExists(_class);
         Files.deleteIfExists(img);
