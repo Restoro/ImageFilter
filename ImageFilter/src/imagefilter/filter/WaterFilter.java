@@ -91,7 +91,7 @@ public class WaterFilter implements FilterInterface {
 
     @Override
     public ImageIcon getPreview() {
-        return new ImageIcon(Tools.getResource("SampleImages/SharpenFilter.jpg"));
+        return new ImageIcon(Tools.getResource("SampleImages/WaterFilter.jpg"));
     }
 
     @Override
