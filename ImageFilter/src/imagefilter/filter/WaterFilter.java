@@ -28,7 +28,7 @@ public class WaterFilter implements FilterInterface {
     public WaterFilter() {
         settings = new Setting[2];
         settings[0] = new Setting("Amplitude", 1, 50, 15);
-        settings[1] = new Setting("Wellenlänge", 10, 200, 100);
+        settings[1] = new Setting("Wellenlänge", 5, 200, 100);
     }
     
     @Override
@@ -65,13 +65,13 @@ public class WaterFilter implements FilterInterface {
                 int xOffset = x - centreX;
                 int yOffset = y - centreY;
 
-                // distance is needed to calculate how many waves should be created
+                // distance from the center is calculated with the pythagoras 
                 float distance = (float) Math.sqrt(xOffset * xOffset + yOffset * yOffset);
 
                 // formula of the sine wave: A*sin(2*pi*frequency*time) 
                 float sineWavePixels = amplitude * (float) Math.sin(distance / waveLength * Math.PI * 2.0f);
 
-                // add the amount of sineWavePixels to the current Position outgoing from the center of the image
+                // add the amount of sineWavePixels to the current Position
                 float newX = centreX + xOffset + sineWavePixels;
                 float newY = centreY + yOffset + sineWavePixels;
 
