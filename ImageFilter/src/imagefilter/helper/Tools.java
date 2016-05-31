@@ -8,8 +8,11 @@ package imagefilter.helper;
 import java.util.List;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -17,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JSlider;
@@ -168,19 +173,33 @@ public class Tools
         }
         return null;
     }
-    
+
+    public static void writeProperty(String property, String value)
+    {
+        Properties prop = new Properties();
+        prop.setProperty(property, value);
+        try
+        {
+            OutputStream out = new FileOutputStream(new File(getResource("settings.properties").toURI()));
+            prop.store(out, property + " changed to " + value);
+        } catch(URISyntaxException | IOException ex)
+        {
+            Logger.getLogger(Tools.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
     public static void fromImageIconToBufferedImage(ImageIcon in, BufferedImage out)
     {
         out.getGraphics().drawImage(in.getImage(), 0, 0, null);
     }
-    
+
     public static BufferedImage fromImageIconToBufferedImage(ImageIcon in)
     {
         BufferedImage out = new BufferedImage(in.getIconWidth(), in.getIconHeight(), BufferedImage.TYPE_3BYTE_BGR);
         fromImageIconToBufferedImage(in, out);
         return out;
     }
-    
+
     public static String getExtension(Path path)
     {
         String fileName = path.toString();
@@ -191,28 +210,26 @@ public class Tools
         }
         return null;
     }
-    
 
     public static String nameWithoutExtension(Path path)
     {
         String fileName = path.toString();
         int i = fileName.lastIndexOf('.');
         int j = fileName.lastIndexOf(FileSystems.getDefault().getSeparator());
-        if(i > 0&&j>0)
+        if(i > 0 && j > 0)
         {
-            return fileName.substring(j+1, i);
+            return fileName.substring(j + 1, i);
         }
         return null;
     }
-    
 
     public static String nameWithExtension(Path path)
     {
         String fileName = path.toString();
         int j = fileName.lastIndexOf(FileSystems.getDefault().getSeparator());
-        if(j>0)
+        if(j > 0)
         {
-            return fileName.substring(j+1, fileName.length());
+            return fileName.substring(j + 1, fileName.length());
         }
         return null;
     }

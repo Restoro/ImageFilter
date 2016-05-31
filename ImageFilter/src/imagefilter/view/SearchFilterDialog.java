@@ -28,9 +28,10 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 public class SearchFilterDialog extends JDialog
 {
     private static SearchFilterDialog dialog;
-    private static final ImageIcon TEST_ICON = new ImageIcon(Tools.getResource("preview.png"));
+    private static final ImageIcon TEST_ICON = new ImageIcon(Tools.getResource("preview.jpg"));
     private static final BufferedImage TEST_IMAGE = new BufferedImage(TEST_ICON.getIconWidth(), TEST_ICON.getIconHeight(), BufferedImage.TYPE_3BYTE_BGR);
 
+    private FileNameExtensionFilter fileFilter;
     private JFileChooser fc;
     private FilterClassLoader cl;
     private BufferedImage img;
@@ -45,6 +46,7 @@ public class SearchFilterDialog extends JDialog
     private SearchFilterDialog(JFileChooser fc, Consumer<FilterInterface> consumer)
     {
         this.fc = fc;
+        fc.setFileFilter(new FileNameExtensionFilter("Java Class File", "class"));
         this.cl = FilterClassLoader.getFilterClassLoader();
         img = new BufferedImage(TEST_ICON.getIconWidth(), TEST_ICON.getIconHeight(), BufferedImage.TYPE_3BYTE_BGR);
         addWindowListener(new WindowAdapter()
@@ -125,7 +127,7 @@ public class SearchFilterDialog extends JDialog
 
     private void showFileChooser()
     {
-        fc.setFileFilter(new FileNameExtensionFilter("Java Class File", ".class"));
+        fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
         fc.setMultiSelectionEnabled(false);
         int returnVal = fc.showOpenDialog(SearchFilterDialog.this);
         if(returnVal == JFileChooser.APPROVE_OPTION)

@@ -60,7 +60,7 @@ public class GammaFilter implements FilterInterface{
 
     @Override
     public ImageIcon getPreview() {
-        return new ImageIcon(Tools.getResource("scrollright.png"));
+        return new ImageIcon(Tools.getResource("SampleImages/GammaFilter.jpg"));
     }
 
     @Override

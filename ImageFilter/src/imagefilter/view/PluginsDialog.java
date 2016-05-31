@@ -78,6 +78,8 @@ public class PluginsDialog extends JDialog
         btnOk.addActionListener(a -> handleClick(a));
         btnBrowse.addActionListener(a -> handleClick(a));
 
+        txtDirectory.setEditable(false);
+
         JScrollPane scrp = new JScrollPane();
         scrp.setViewportView(lstFilter);
         lstFilter.setCellRenderer(new PluginsListRenderer());
@@ -156,7 +158,7 @@ public class PluginsDialog extends JDialog
     {
         if(a.getSource() == btnAdd)
         {
-            SearchFilterDialog.show(null, filter -> filterSelected(filter));
+            SearchFilterDialog.show(fc, filter -> filterSelected(filter));
         } else if(a.getSource() == btnRemove)
         {
             FilterInterface fi = lstFilter.getSelectedValue();
@@ -171,8 +173,10 @@ public class PluginsDialog extends JDialog
             }
         } else if(a.getSource() == btnBrowse)
         {
+            fc.setFileFilter(null);
             fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             fc.setMultiSelectionEnabled(false);
+            fc.setSelectedFile(Paths.get(txtDirectory.getText()).toFile());
             int returnVal = fc.showOpenDialog(PluginsDialog.this);
             if(returnVal == JFileChooser.APPROVE_OPTION)
             {
@@ -231,6 +235,7 @@ public class PluginsDialog extends JDialog
 
     private void prepareShowing()
     {
+        txtDirectory.setText(pluginDirectory.toString());
         this.setVisible(true);
     }
 
@@ -242,10 +247,22 @@ public class PluginsDialog extends JDialog
 
     private void apply()
     {
+        Path newDirectory = Paths.get(txtDirectory.getText());
+        if(!newDirectory.equals(pluginDirectory))
+        {
+            pluginDirectory = newDirectory;
+            Tools.writeProperty("pluginDirectory", txtDirectory.getText());
+        }
         for(FilterInterface fi : removedFilter)
         {
             model.removeFilter(fi);
-            System.out.println(getClass().getClassLoader().getResource(fi.getClass().getName()));
+            try
+            {
+                removeFilter(fi, FilterClassLoader.getPathFromFilter(fi));
+            } catch(IOException ex)
+            {
+                Logger.getLogger(PluginsDialog.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
         for(FilterInterface fi : newFilter)
         {
@@ -282,9 +299,9 @@ public class PluginsDialog extends JDialog
 
     private void addFilter(FilterInterface fi, Path pathFromFilter) throws IOException
     {
-        String imgFileName = Tools.nameWithoutExtension(pathFromFilter) + ".png";
+        String imgFileName = Tools.nameWithoutExtension(pathFromFilter) + ".jpg";
         Path img = pluginDirectory.resolve("img").resolve(imgFileName);
-        ImageIO.write(Tools.fromImageIconToBufferedImage(fi.getPreview()), "png", Files.newOutputStream(img, StandardOpenOption.CREATE, StandardOpenOption.WRITE));
+        ImageIO.write(Tools.fromImageIconToBufferedImage(fi.getPreview()), "jpg", Files.newOutputStream(img, StandardOpenOption.CREATE, StandardOpenOption.WRITE));
 
         Path _class = pluginDirectory.resolve("class").resolve(Tools.nameWithExtension(pathFromFilter));
         if(!Files.exists(_class))
@@ -293,6 +310,13 @@ public class PluginsDialog extends JDialog
         }
         Files.copy(pathFromFilter, Files.newOutputStream(_class));
     }
-    
-    //private void removeFilter(FilterInterface fi, Path pathFromFilter)
+
+    private void removeFilter(FilterInterface fi, Path path) throws IOException
+    {
+        Path _class = pluginDirectory.resolve("class").resolve(path.getFileName());
+        Path img = pluginDirectory.resolve("img").resolve(Tools.nameWithoutExtension(path) + ".jpg");
+
+        Files.deleteIfExists(_class);
+        Files.deleteIfExists(img);
+    }
 }
