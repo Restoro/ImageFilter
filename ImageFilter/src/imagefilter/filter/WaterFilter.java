@@ -76,8 +76,8 @@ public class WaterFilter implements FilterInterface {
                 float newY = centreY + yOffset + sineWavePixels;
 
                 // last check if the new position is out of bound and cast to integer
-                int nx = (int) Tools.checkBoundaries((int) (newX + 0.5f), 0, width - 1);
-                int ny = (int) Tools.checkBoundaries((int) (newY + 0.5f), 0, height - 1);
+                int nx = (int) Tools.boundaryCheck((int) (newX + 0.5f), width - 1);
+                int ny = (int) Tools.boundaryCheck((int) (newY + 0.5f), height - 1);
 
                 // get the pixel of the calculated position and set the rgb value to the current position
                 outPixels[i * 3] = inPixels[(ny * width + nx) * 3];

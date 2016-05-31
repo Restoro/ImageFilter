@@ -99,9 +99,9 @@ public class GaussianBlurFilter implements FilterInterface {
                     }
                 }
                 // some of the r,g,b values may now be greater or less than the boundaries, so we need to check them
-                int r = (int) Tools.checkBoundaries((int) (sumR + 0.5), 0, 255);
-                int g = (int) Tools.checkBoundaries((int) (sumG + 0.5), 0, 255);
-                int b = (int) Tools.checkBoundaries((int) (sumB + 0.5), 0, 255);
+                int r = (int) Tools.boundaryCheck((int) (sumR + 0.5));
+                int g = (int) Tools.boundaryCheck((int) (sumG + 0.5));
+                int b = (int) Tools.boundaryCheck((int) (sumB + 0.5));
 
                 // then the rgb values are merged and set to the destination value
                 destPixels[i * 3    ] = (byte) b;
