@@ -19,7 +19,8 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
 /**
- *
+ * This model has a list of all plugins. If that list changes all observer get notified.
+ * This model also manages possible changes. Only when applying the changes the list of plugins changed.
  * @author hoellinger
  */
 public class PluginModel
@@ -44,6 +45,14 @@ public class PluginModel
         pluginChangesListeners = new LinkedList<>();
     }
 
+    /**
+     * Sets the plugin directory if possible. When the input directory has no subfolders
+     * /class and/or /img it tries to create them. Occurs some exception the folder 
+     * is not selectable. Else it writes the new directory to the settings file
+     * and closes the programm because of to high complexity.
+     * @param pluginDirectory the new plugin directory
+     * @return true if new directory could be selected, else false
+     */
     public boolean setPluginDirectory(Path pluginDirectory)
     {
         if(!pluginDirectory.equals(this.pluginDirectory))
@@ -65,6 +74,10 @@ public class PluginModel
         return false;
     }
 
+    /**
+     * Adds a new filter. Note that changes have to be applied.
+     * @param fi new filter to add
+     */
     public void newPlugin(FilterInterface fi)
     {
         if(fi != null)
@@ -74,7 +87,10 @@ public class PluginModel
             firePluginChanges(fi, false);
         }
     }
-
+    /**
+     * Removes a filter. Note that changes have to be applied.
+     * @param fi filter to remove
+     */
     public void removePlugin(FilterInterface fi)
     {
         if(fi != null)
@@ -95,12 +111,18 @@ public class PluginModel
         }
     }
 
+    /**
+     * Undo all changes.
+     */
     public void cancleChanges()
     {
         clearChanges();
         fireChangesCanceled(plugins);
     }
 
+    /**
+     * Apply all changes.
+     */
     public void applayChanges()
     {
         for(FilterInterface fi : removedPlugins)

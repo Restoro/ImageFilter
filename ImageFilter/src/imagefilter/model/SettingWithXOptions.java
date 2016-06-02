@@ -6,7 +6,7 @@
 package imagefilter.model;
 
 /**
- *
+ * Settings with X options
  * @author Fritsch
  */
 public abstract class SettingWithXOptions extends Setting{

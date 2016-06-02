@@ -6,7 +6,7 @@
 package imagefilter.model;
 
 /**
- *
+ * Settings with 2 Options
  * @author Fritsch
  */
 public class SettingWith2Options extends Setting{

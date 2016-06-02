@@ -6,7 +6,7 @@
 package imagefilter.model;
 
 /**
- *
+ * Each instance of a filter has its own settings.
  * @author Fritsch
  */
 public class Setting {

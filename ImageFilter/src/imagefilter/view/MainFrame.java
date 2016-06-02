@@ -300,7 +300,7 @@ public class MainFrame extends JFrame {
                     int index = Integer.valueOf(sourceSlider.getName());
                     Setting changeSetting = (model.getDisplayImage().filter.getSettings())[index];
                     changeSetting.setCurValue(sourceSlider.getValue());
-                    model.setSetting();
+                    model.settingsChanged();
                 }
             } else if (e.getSource().equals(chkbToggleInListFilter)) {
                 model.setRemoveFilterIfAppliedInList(chkbToggleInListFilter.getState());
@@ -314,7 +314,7 @@ public class MainFrame extends JFrame {
                 int index = Integer.valueOf(sourceToggle.getName());
                 Setting changeSetting = (model.getDisplayImage().filter.getSettings())[index];
                 changeSetting.setCurValue(sourceToggle.isSelected()?1:0);
-                model.setSetting();
+                model.settingsChanged();
             }
         }
 

@@ -12,7 +12,6 @@ import imagefilter.model.Adapter;
 import imagefilter.model.Model;
 import imagefilter.model.PluginModel;
 import imagefilter.view.MainFrame;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import javax.swing.JFrame;
 
@@ -24,11 +23,15 @@ public class ImageFilter
 {
 
     /**
+     * This method starts the program. 
+     * First it creates the model and sets the filters int the programm. 
+     * Then it creates the plugin model with the specified plugin directory
+     * in the settings.properties file.
+     * 
      * @param args the command line arguments
      */
     public static void main(String[] args)
     {
-        // TODO code application logic here
         Model model = new Model();
         setFilters(model);
         PluginModel pluginModel = new PluginModel(Paths.get(Tools.getProperty("pluginDirectory")));
